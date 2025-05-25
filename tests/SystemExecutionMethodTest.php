@@ -32,7 +32,7 @@ class SystemExecutionMethodTest extends TestCase {
     public function testExecutionMethodCallsSystemAndRetursResult(): void {
         // Create an SystemExecutionMethod instance
         $systemExecutionMethod = new SystemExecutionMethod();  
-        $cmd = 'ls';
+        $cmd = 'pwd';
         $output = '/var/www/html';
         
         // Mock the built-in `system()` function
