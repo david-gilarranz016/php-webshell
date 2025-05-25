@@ -8,7 +8,7 @@ class ShellExecExecutionMethodTest extends TestCase {
 
     public function testImplementsExecutionMethod(): void {
         // Create an SystemExecutionMethod instance
-        $shellExecExecutionMethod = new SystemExecutionMethod();  
+        $shellExecExecutionMethod = new ShellExecExecutionMethod();  
 
         // Expect the new instance to implement the interface ExecutionMethod
         $this->assertInstanceOf(ExecutionMethod::class, $shellExecExecutionMethod);
