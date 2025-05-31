@@ -1,7 +1,8 @@
 <?php
 namespace WebShell;
 
-abstract class Singleton {
+abstract class Singleton
+{
 
     private static $instances = [];
 
