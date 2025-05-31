@@ -3,10 +3,12 @@ namespace WebShell;
 
 use PHPUnit\Framework\TestCase;
 
-class ExecExecutionMethodTest extends TestCase {
+class ExecExecutionMethodTest extends TestCase
+{
     use \phpmock\phpunit\PHPMock;
 
-    public function testImplementsExecutionMethod(): void {
+    public function testImplementsExecutionMethod(): void
+    {
         // Create an SystemExecutionMethod instance
         $execExecutionMethod = new ExecExecutionMethod();  
 
@@ -14,7 +16,8 @@ class ExecExecutionMethodTest extends TestCase {
         $this->assertInstanceOf(ExecutionMethod::class, $execExecutionMethod);
     }
 
-    public function testExecutionMethodCallsShellExec(): void {
+    public function testExecutionMethodCallsShellExec(): void
+    {
         // Create an SystemExecutionMethod instance
         $execExecutionMethod = new ExecExecutionMethod();  
         $cmd = 'whoami';
@@ -35,7 +38,8 @@ class ExecExecutionMethodTest extends TestCase {
         $this->assertEquals($output, $result);
     }
 
-    public function testExecutionMethodCallsShellExecAndReturnsResult(): void {
+    public function testExecutionMethodCallsShellExecAndReturnsResult(): void
+    {
         // Create an SystemExecutionMethod instance
         $execExecutionMethod = new ExecExecutionMethod();  
         $cmd = 'ls -l';

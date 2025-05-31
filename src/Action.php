@@ -1,7 +1,8 @@
 <?php
 namespace WebShell;
 
-interface Action {
+interface Action
+{
     public function run($args);
 }
 ?>

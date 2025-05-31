@@ -5,17 +5,20 @@ use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStream,
     org\bovigo\vfs\vfsStreamDirectory;
 
-class SystemExecutionMethodTest extends TestCase {
+class SystemExecutionMethodTest extends TestCase
+{
     use \phpmock\phpunit\PHPMock;
 
     // Root directory for the virtual filesystem
     private $root;
 
-    public function setUp(): void {
+    public function setUp(): void
+    {
         $this->root = vfsStream::setup('/var/www/html');
     }
 
-    public function testImplementsExecutionMethod(): void {
+    public function testImplementsExecutionMethod(): void
+    {
         // Create an SystemExecutionMethod instance
         $systemExecutionMethod = new SystemExecutionMethod();  
 
@@ -23,7 +26,8 @@ class SystemExecutionMethodTest extends TestCase {
         $this->assertInstanceOf(ExecutionMethod::class, $systemExecutionMethod);
     }
 
-    public function testExecutionMethodCallsSystem(): void {
+    public function testExecutionMethodCallsSystem(): void
+    {
         // Create an SystemExecutionMethod instance
         $systemExecutionMethod = new SystemExecutionMethod();  
         $cmd = 'whoami';
@@ -53,7 +57,8 @@ class SystemExecutionMethodTest extends TestCase {
         $this->assertEquals($output, $result);
     }
 
-    public function testExecutionMethodCallsSystemAndReturnsResult(): void {
+    public function testExecutionMethodCallsSystemAndReturnsResult(): void
+    {
         // Create an SystemExecutionMethod instance
         $systemExecutionMethod = new SystemExecutionMethod();  
         $cmd = 'pwd';
@@ -83,7 +88,8 @@ class SystemExecutionMethodTest extends TestCase {
         $this->assertEquals($output, $result);
     }
 
-    public function testExecuteCallsSystemAndReturnsFullCommandOutput(): void {
+    public function testExecuteCallsSystemAndReturnsFullCommandOutput(): void
+    {
         // Create an SystemExecutionMethod instance
         $systemExecutionMethod = new SystemExecutionMethod();  
         $cmd = 'ls -l';
@@ -119,7 +125,8 @@ class SystemExecutionMethodTest extends TestCase {
         $this->assertEquals($output, $result);
     }
 
-    public function testExecuteDeletesTemporaryFile(): void {
+    public function testExecuteDeletesTemporaryFile(): void
+    {
         // Create an SystemExecutionMethod instance
         $systemExecutionMethod = new SystemExecutionMethod();  
         $cmd = 'pwd';

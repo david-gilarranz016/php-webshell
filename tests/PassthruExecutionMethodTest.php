@@ -5,17 +5,20 @@ use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStream,
     org\bovigo\vfs\vfsStreamDirectory;
 
-class PassthruExecutionMethodTest extends TestCase {
+class PassthruExecutionMethodTest extends TestCase
+{
     use \phpmock\phpunit\PHPMock;
 
     // Root directory for the virtual filepassthru
     private $root;
 
-    public function setUp(): void {
+    public function setUp(): void
+    {
         $this->root = vfsStream::setup('/var/www/html');
     }
 
-    public function testImplementsExecutionMethod(): void {
+    public function testImplementsExecutionMethod(): void
+    {
         // Create an PassthruExecutionMethod instance
         $passthruExecutionMethod = new PassthruExecutionMethod();  
 
@@ -23,7 +26,8 @@ class PassthruExecutionMethodTest extends TestCase {
         $this->assertInstanceOf(ExecutionMethod::class, $passthruExecutionMethod);
     }
 
-    public function testExtendsBlindExecutionMethod(): void {
+    public function testExtendsBlindExecutionMethod(): void
+    {
         // Create an PassthruExecutionMethod instance
         $passthruExecutionMethod = new PassthruExecutionMethod();  
 
@@ -31,7 +35,8 @@ class PassthruExecutionMethodTest extends TestCase {
         $this->assertInstanceOf(BlindExecutionMethod::class, $passthruExecutionMethod);
     }
 
-    public function testExecutionMethodCallsPassthru(): void {
+    public function testExecutionMethodCallsPassthru(): void
+    {
         // Create an PassthruExecutionMethod instance
         $passthruExecutionMethod = new PassthruExecutionMethod();  
         $cmd = 'whoami';
@@ -61,7 +66,8 @@ class PassthruExecutionMethodTest extends TestCase {
         $this->assertEquals($output, $result);
     }
 
-    public function testExecutionMethodCallsPassthruAndReturnsResult(): void {
+    public function testExecutionMethodCallsPassthruAndReturnsResult(): void
+    {
         // Create an PassthruExecutionMethod instance
         $passthruExecutionMethod = new PassthruExecutionMethod();  
         $cmd = 'pwd';
@@ -91,7 +97,8 @@ class PassthruExecutionMethodTest extends TestCase {
         $this->assertEquals($output, $result);
     }
 
-    public function testExecuteCallsPassthruAndReturnsFullCommandOutput(): void {
+    public function testExecuteCallsPassthruAndReturnsFullCommandOutput(): void
+    {
         // Create an PassthruExecutionMethod instance
         $passthruExecutionMethod = new PassthruExecutionMethod();  
         $cmd = 'ls -l';
@@ -127,7 +134,8 @@ class PassthruExecutionMethodTest extends TestCase {
         $this->assertEquals($output, $result);
     }
 
-    public function testExecuteDeletesTemporaryFile(): void {
+    public function testExecuteDeletesTemporaryFile(): void
+    {
         // Create an PassthruExecutionMethod instance
         $passthruExecutionMethod = new PassthruExecutionMethod();  
         $cmd = 'pwd';

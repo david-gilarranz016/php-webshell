@@ -3,10 +3,12 @@ namespace WebShell;
 
 use PHPUnit\Framework\TestCase;
 
-class BackticksExecutionMethodTest extends TestCase {
+class BackticksExecutionMethodTest extends TestCase
+{
     use \phpmock\phpunit\PHPMock;
 
-    public function testImplementsExecutionMethod(): void {
+    public function testImplementsExecutionMethod(): void
+    {
         // Create an BackticksExecutionMethod instance
         $backticksExecutionMethod = new BackticksExecutionMethod();  
 
@@ -14,7 +16,8 @@ class BackticksExecutionMethodTest extends TestCase {
         $this->assertInstanceOf(ExecutionMethod::class, $backticksExecutionMethod);
     }
 
-    public function testExecutionMethodCallsBackticks(): void {
+    public function testExecutionMethodCallsBackticks(): void
+    {
         // Create an BackticksExecutionMethod instance
         $backticksExecutionMethod = new BackticksExecutionMethod();  
         $cmd = 'whoami';
@@ -27,7 +30,8 @@ class BackticksExecutionMethodTest extends TestCase {
         $this->assertEquals($output, $result);
     }
 
-    public function testExecutionMethodCallsBackticksAndReturnsResult(): void {
+    public function testExecutionMethodCallsBackticksAndReturnsResult(): void
+    {
         // Create an BackticksExecutionMethod instance
         $backticksExecutionMethod = new BackticksExecutionMethod();  
         $cmd = 'pwd';
