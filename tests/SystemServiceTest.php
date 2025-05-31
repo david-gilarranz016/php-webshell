@@ -5,6 +5,8 @@ use PHPUnit\Framework\TestCase;
 
 class SystemServiceTest extends TestCase
 {
+    use \phpmock\phpunit\PHPMock;
+
     public function testIsSingleton(): void
     {
         // Get two instances from the class
@@ -43,6 +45,65 @@ class SystemServiceTest extends TestCase
         // Assert that the SystemService instance is using the Mock object to run system calls
         $output = $instance->execute($cmd);
         $this->assertEquals($expectedOutput, $output);
+    }
+
+    public function testUsesExecutionMethodToInitializeCurrentDir(): void
+    {
+        // Get an instance and set the ExecutionMethod
+        $instance = SystemService::getInstance();
+        $executionMethod = $this->createMock(ExecutionMethod::class);
+        $instance->setExecutionMethod($executionMethod);
+
+        // Configure the mocked execution method to receive the command and return a canned output
+        $cmd = 'pwd';
+        $expectedDir = '/var/www/html';
+        $executionMethod->expects($this->once())->method('execute')->with($cmd)->willReturn($expectedDir);
+
+        // Assert that calling the getCurrentDir method uses the execution method if no previous directory is set
+        $dir = $instance->getCurrentDir();
+        $this->assertEquals($expectedDir, $dir);
+    }
+
+    public function testUpdatesCurrentDirectoryIfAcdComandIsReceived(): void
+    {
+        // Get an instance and set the ExecutionMethod
+        $instance = SystemService::getInstance();
+        $executionMethod = $this->createMock(ExecutionMethod::class);
+        $instance->setExecutionMethod($executionMethod);
+
+        // Set up variables and mock calls to is_dir
+        $cmd = 'cd /home/web-admin';
+        $expectedDir = '/home/web-admin';
+        $is_dir = $this->getFunctionMock(__NAMESPACE__, "is_dir");
+        $is_dir->expects($this->once())->with($expectedDir)->willReturn(true);
+
+        // Run a command that modifies the current directory and assert that the new directory is stored
+        $instance->execute($cmd);
+        $dir = $instance->getCurrentDir();
+
+        $this->assertEquals($expectedDir, $dir);
+    }
+
+    public function testDoesNotUpdateCurrentDirIfSpecifiedDirDoesNotExist(): void
+    {
+        // Get an instance and set the ExecutionMethod
+        $instance = SystemService::getInstance();
+        $executionMethod = $this->createMock(ExecutionMethod::class);
+        $instance->setExecutionMethod($executionMethod);
+
+        // Change to an "existing" directory
+        $cmd = 'cd /home/web-admin';
+        $expectedDir = '/home/web-admin';
+        $is_dir = $this->getFunctionMock(__NAMESPACE__, "is_dir");
+        $is_dir->expects($this->any())->willReturnOnConsecutiveCalls(true, false);
+        $instance->execute($cmd);
+
+        // Attempt to change to a non existing directory
+        $instance->execute('cd /non/existent');
+
+        // Expect directory to stay at the last successful change
+        $dir = $instance->getCurrentDir();
+        $this->assertEquals($expectedDir, $dir);
     }
 }
 ?>
