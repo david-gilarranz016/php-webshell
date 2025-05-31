@@ -38,10 +38,13 @@ class SystemService
 
             if (is_dir($targetDir)) {
                 $this->currentDir = $targetDir;
+                $output = $targetDir;
             }
         } else {
             // If the cwd has been updated at any time, append a cd to the command
             $preparedCommand = ($this->currentDir == '') ? $cmd : "cd '$this->currentDir' && $cmd";
+
+            // Run the command
             $output = $this->executionMethod->execute($preparedCommand);
         }
 

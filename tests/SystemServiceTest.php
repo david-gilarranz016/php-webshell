@@ -139,5 +139,23 @@ class SystemServiceTest extends TestCase
         $output = $instance->execute($cmd);
         $this->assertEquals($expectedOutput, $output);
     }
+
+    public function testExecutingAcdCommandReturnsTheNewCommandIfSuccessful(): void
+    {
+        // Get an instance and set the ExecutionMethod
+        $instance = SystemService::getInstance();
+        $executionMethod = $this->createMock(ExecutionMethod::class);
+        $instance->setExecutionMethod($executionMethod);
+
+        // Change to an "existing" directory
+        $dir = '/home/web-admin';
+        $cmd = "cd $dir";
+        $is_dir = $this->getFunctionMock(__NAMESPACE__, "is_dir");
+        $is_dir->expects($this->any())->willReturn(true);
+        $output = $instance->execute($cmd);
+
+        // Expect the output to be the cwd
+        $this->assertEquals($dir, $output);
+    }
 }
 ?>
