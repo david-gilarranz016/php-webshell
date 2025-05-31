@@ -7,6 +7,16 @@ class SystemServiceTest extends TestCase
 {
     use \phpmock\phpunit\PHPMock;
 
+    // After each test is run, reset the current working directory to its original value
+    public function tearDown(): void
+    {
+        $instance = SystemService::getInstance();
+        $reflectedInstance = new \ReflectionObject($instance);
+        $currentDir = $reflectedInstance->getProperty('currentDir');
+        $currentDir->setAccessible(true);
+        $currentDir->setValue($instance, '');
+    }
+
     public function testIsSingleton(): void
     {
         // Get two instances from the class
@@ -104,6 +114,30 @@ class SystemServiceTest extends TestCase
         // Expect directory to stay at the last successful change
         $dir = $instance->getCurrentDir();
         $this->assertEquals($expectedDir, $dir);
+    }
+
+    public function testAppendscdCommandToEmulateInteractiveShell(): void
+    {
+        // Get an instance and set the ExecutionMethod
+        $instance = SystemService::getInstance();
+        $executionMethod = $this->createMock(ExecutionMethod::class);
+        $instance->setExecutionMethod($executionMethod);
+
+        // Change to an "existing" directory
+        $cmd = 'cd /home/web-admin';
+        $cwd = '/home/web-admin';
+        $is_dir = $this->getFunctionMock(__NAMESPACE__, "is_dir");
+        $is_dir->expects($this->any())->willReturn(true);
+        $instance->execute($cmd);
+
+        // Configure the mocked execution method to receive the command and return a canned output
+        $cmd = 'whoami';
+        $expectedOutput = 'www-data';
+        $executionMethod->expects($this->once())->method('execute')->with("cd '$cwd' && $cmd")->willReturn($expectedOutput);
+
+        // Assert that the SystemService instance is using the Mock object to run system calls
+        $output = $instance->execute($cmd);
+        $this->assertEquals($expectedOutput, $output);
     }
 }
 ?>

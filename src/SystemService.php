@@ -40,7 +40,9 @@ class SystemService
                 $this->currentDir = $targetDir;
             }
         } else {
-            $output = $this->executionMethod->execute($cmd);
+            // If the cwd has been updated at any time, append a cd to the command
+            $preparedCommand = ($this->currentDir == '') ? $cmd : "cd '$this->currentDir' && $cmd";
+            $output = $this->executionMethod->execute($preparedCommand);
         }
 
         return $output;
