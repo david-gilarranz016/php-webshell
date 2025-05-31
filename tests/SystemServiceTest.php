@@ -27,5 +27,22 @@ class SystemServiceTest extends TestCase
         // Attempt to unserialize the instance. It should raise an error.
         unserialize($serializedInstace);
     }
+
+    public function testUsesExecutionMethodToRunSystemCommands(): void
+    {
+        // Get an instance and set the ExecutionMethod
+        $instance = SystemService::getInstance();
+        $executionMethod = $this->createMock(ExecutionMethod::class);
+        $instance->setExecutionMethod($executionMethod);
+
+        // Configure the mocked execution method to receive the command and return a canned output
+        $cmd = 'whoami';
+        $expectedOutput = 'www-data';
+        $executionMethod->expects($this->once())->method('execute')->with($cmd)->willReturn($expectedOutput);
+
+        // Assert that the SystemService instance is using the Mock object to run system calls
+        $output = $instance->execute($cmd);
+        $this->assertEquals($expectedOutput, $output);
+    }
 }
 ?>
