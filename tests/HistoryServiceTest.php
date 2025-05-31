@@ -61,5 +61,30 @@ class HistoryServiceTest extends TestCase
         // Expect all appearances of `ls` to be returned
         $this->assertEquals(['ls -l', 'ls /var/www', 'ls'], $result);
     }
+
+    public function testHistoryCanBeCleaned(): void
+    {
+        // Get an HistoryService instance
+        $instance = HistoryService::getInstance();
+
+        // Add a series of commands to the command history
+        $commands = [
+            'ls -l',
+            'echo test',
+            'ls /var/www',
+            'cd /var/www',
+            'ls'
+        ];
+        foreach ($commands as $cmd) {
+            $instance->addCommand($cmd);
+        }
+
+        // Clear command history
+        $instance->clearHistory();
+
+        // Expect all appearances of `ls` to be returned
+        $history = $instance->getHistory();
+        $this->assertEquals([], $history);
+    }
 }
 ?>

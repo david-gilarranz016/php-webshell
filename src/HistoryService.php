@@ -26,5 +26,10 @@ class HistoryService extends Singleton
         // Reindex the array
         return array_values($searchResults);
     }
+
+    public function clearHistory()
+    {
+        $this->history = [];
+    }
 }
 ?>
