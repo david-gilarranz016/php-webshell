@@ -3,7 +3,7 @@ namespace WebShell;
 
 class ExecuteCommandAction implements Action
 {
-    public function run($args)
+    public function run(array $args): string
     {
         // Extract the command from the arguments
         $cmd = $args['cmd'];

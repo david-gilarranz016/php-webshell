@@ -5,17 +5,17 @@ class HistoryService extends Singleton
 {
     private $history = [];
 
-    public function addCommand($cmd)
+    public function addCommand(string $cmd): void
     {
         array_push($this->history, $cmd);
     }
 
-    public function getHistory()
+    public function getHistory(): array
     {
         return $this->history;
     }
 
-    public function searchCommand($cmd)
+    public function searchCommand(string $cmd): array
     {
         // Filter the $history array looking for commands that start with $cmd
         $searchResults = array_filter($this->history, function ($savedCommand) use ($cmd)
@@ -27,7 +27,7 @@ class HistoryService extends Singleton
         return array_values($searchResults);
     }
 
-    public function clearHistory()
+    public function clearHistory(): void
     {
         $this->history = [];
     }

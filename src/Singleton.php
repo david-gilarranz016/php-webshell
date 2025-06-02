@@ -14,7 +14,7 @@ abstract class Singleton
         throw new \Exception('Cannot unserialize a singleton');
     }
 
-    public static function getInstance()
+    public static function getInstance(): static
     {
         // If there is not an instance registered for the concrete subclass, register it
         $cls = static::class;

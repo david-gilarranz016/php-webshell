@@ -3,14 +3,11 @@ namespace WebShell;
 
 class SystemService extends Singleton
 {
-    // Singleton instance
-    private static $instance = null;
-
     // Class attributes
     private $executionMethod = null;
     private $currentDir = '';
     
-    public function execute($cmd)
+    public function execute(string $cmd): string
     {
         $output = '';
 
@@ -34,12 +31,12 @@ class SystemService extends Singleton
         return $output;
     }
 
-    public function setExecutionMethod($executionMethod)
+    public function setExecutionMethod(ExecutionMethod $executionMethod): void
     {
         $this->executionMethod = $executionMethod;
     }
 
-    public function getCurrentDir()
+    public function getCurrentDir(): string
     {
         $currentDir = '';
 

@@ -3,7 +3,7 @@ namespace WebShell;
 
 class ExecExecutionMethod implements ExecutionMethod
 {
-    public function execute($cmd)
+    public function execute(string $cmd): string
     {
         $output = [];
         exec($cmd, $output);
