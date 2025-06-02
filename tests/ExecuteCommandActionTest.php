@@ -3,7 +3,7 @@ namespace WebShell;
 
 use PHPUnit\Framework\TestCase;
 
-class ExecuteCommandTest extends TestCase
+class ExecuteCommandActionTest extends TestCase
 {
     public function tearDown(): void
     {
@@ -14,8 +14,8 @@ class ExecuteCommandTest extends TestCase
 
     public function testImplementsActionInterface(): void
     {
-        // Get an ExecuteCommand instance
-        $action = new ExecuteCommand; 
+        // Get an action instance
+        $action = new ExecuteCommandAction;
 
         // Assert it implements the Action interface
         $this->assertInstanceOf(Action::class, $action);
@@ -34,7 +34,7 @@ class ExecuteCommandTest extends TestCase
         
         // Create test payload and run the action
         $args = [ 'cmd' => $cmd ];
-        $action = new ExecuteCommand;
+        $action = new ExecuteCommandAction;
         $result = $action->run($args);
 
         // Expect result to be successful
@@ -53,7 +53,7 @@ class ExecuteCommandTest extends TestCase
         SystemService::getInstance()->setExecutionMethod($executionMethod);
 
         // Run the command
-        $action = new ExecuteCommand;
+        $action = new ExecuteCommandAction;
         $action->run([ 'cmd' => $cmd ]);
 
         // Verify that the command is added to the history

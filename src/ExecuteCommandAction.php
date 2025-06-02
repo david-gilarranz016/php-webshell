@@ -1,7 +1,7 @@
 <?php
 namespace WebShell;
 
-class ExecuteCommand implements Action
+class ExecuteCommandAction implements Action
 {
     public function run($args)
     {
