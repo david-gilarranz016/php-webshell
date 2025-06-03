@@ -51,5 +51,26 @@ class SecurityServiceTest extends TestCase
         $result = $instance->decrypt($encryptedBody, $iv);
         $this->assertEmpty($result);
     }
+
+    public function testEncryptsBodyAndReturnsIv(): void
+    {
+        // Generate a 256 bit key and a sample response
+        $key = random_bytes(32);
+        $response = 'This is an example';
+
+        // Initialize the SecurityService
+        $instance = SecurityService::getInstance();
+        $instance->setKey($key);
+
+        // Encrypt the response
+        [
+            'body' => $body,
+            'iv' => $iv
+        ] = $instance->encrypt($response);
+
+        // Expect the response to be decryptable
+        $decryptedResponse = openssl_decrypt($body, 'aes-256-cbc', $key, 0, $iv);
+        $this->assertEquals($response, $decryptedResponse);
+    }
 }
 ?>
