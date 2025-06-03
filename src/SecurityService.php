@@ -4,11 +4,7 @@ namespace WebShell;
 class SecurityService extends Singleton
 {
     private $key;
-
-    public function setKey(string $key): void
-    {
-        $this->key = $key;
-    }
+    private $nonce;
 
     public function encrypt(string $body): array
     {
@@ -28,5 +24,19 @@ class SecurityService extends Singleton
         return openssl_decrypt($body, 'aes-256-cbc', $this->key, 0, $iv); 
     }
 
+    public function getNonce(): string
+    {
+        return $this->nonce;
+    }
+
+    public function setKey(string $key): void
+    {
+        $this->key = $key;
+    }
+
+    public function setNonce(string $nonce): void
+    {
+        $this->nonce = $nonce;
+    }
 }
 ?>

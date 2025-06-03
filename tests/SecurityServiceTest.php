@@ -72,5 +72,18 @@ class SecurityServiceTest extends TestCase
         $decryptedResponse = openssl_decrypt($body, 'aes-256-cbc', $key, 0, $iv);
         $this->assertEquals($response, $decryptedResponse);
     }
+
+    public function testStoresAndReturnsNonce(): void
+    {
+        // Create a random nonce
+        $nonce = random_bytes(16);
+
+        // Initialize the SecurityService
+        $instance = SecurityService::getInstance();
+        $instance->setNonce($nonce);
+
+        // Expect nonce to be stored
+        $this->assertEquals($nonce, $instance->getNonce());
+    }
 }
 ?>
