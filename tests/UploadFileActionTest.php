@@ -31,7 +31,7 @@ class UploadFileActionTest extends TestCase
         $content = 'This is a test file.';
 
         // Prepare the arguments and run the action
-        $args = [
+        $args = (object) [
             'filename' => $filename,
             'content' => base64_encode($content)
         ];

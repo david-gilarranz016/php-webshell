@@ -23,7 +23,7 @@ class DeleteHistoryActionTest extends TestCase
 
         // Call the DeleteHistoryAction 
         $action = new DeleteHistoryAction;
-        $action->run([]);
+        $action->run((object) []);
 
         // Expect the history to be empty
         $history = $instance->getHistory();

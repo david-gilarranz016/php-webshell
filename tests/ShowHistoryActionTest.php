@@ -3,7 +3,7 @@ namespace WebShell;
 
 use PHPUnit\Framework\TestCase;
 
-class ShowHistoryTest extends TestCase
+class ShowHistoryActionTest extends TestCase
 {
     public function tearDown(): void
     {
@@ -31,7 +31,7 @@ class ShowHistoryTest extends TestCase
 
         // Run a ShowHistoryAction
         $action = new ShowHistoryAction;
-        $result = $action->run([]);
+        $result = $action->run((object) []);
 
         // Assert that a list of commands separated by newline characters is returned
         $this->assertEquals(implode("\n", $commands), $result);
@@ -48,7 +48,8 @@ class ShowHistoryTest extends TestCase
 
         // Run a ShowHistoryAction that searches instances of the `ls` command
         $action = new ShowHistoryAction;
-        $result = $action->run(['search' => 'ls']);
+        $args = (object) ['search' => 'ls'];
+        $result = $action->run($args);
 
         // Assert that only `ls` commands are returned
         $this->assertEquals("ls -l /home\nls -la", $result);

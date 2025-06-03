@@ -3,6 +3,6 @@ namespace WebShell;
 
 interface Action
 {
-    public function run(array $args): string;
+    public function run(object $args): string;
 }
 ?>

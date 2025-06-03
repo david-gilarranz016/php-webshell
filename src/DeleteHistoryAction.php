@@ -3,7 +3,7 @@ namespace WebShell;
 
 class DeleteHistoryAction implements Action
 {
-    public function run(array $args): string
+    public function run(object $args): string
     {
         // Delete history
         HistoryService::getInstance()->clearHistory();

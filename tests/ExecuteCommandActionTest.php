@@ -33,7 +33,7 @@ class ExecuteCommandActionTest extends TestCase
         SystemService::getInstance()->setExecutionMethod($executionMethod);
         
         // Create test payload and run the action
-        $args = [ 'cmd' => $cmd ];
+        $args = (object) [ 'cmd' => $cmd ];
         $action = new ExecuteCommandAction;
         $result = $action->run($args);
 
@@ -54,7 +54,8 @@ class ExecuteCommandActionTest extends TestCase
 
         // Run the command
         $action = new ExecuteCommandAction;
-        $action->run([ 'cmd' => $cmd ]);
+        $args = (object) [ 'cmd' => $cmd ];
+        $action->run($args);
 
         // Verify that the command is added to the history
         $history = HistoryService::getInstance()->getHistory();

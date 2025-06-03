@@ -34,7 +34,10 @@ class DownloadFileActionTest extends TestCase
 
         // Call the DownloadFileAction
         $action = new DownloadFileAction;
-        $result = $action->run([ 'filename' => $filename ]);
+        $args = (object) [
+            'filename' => $filename
+        ];
+        $result = $action->run($args);
 
         // Expect the result to be the base64 encoded file
         $this->assertEquals(base64_encode($content), $result);

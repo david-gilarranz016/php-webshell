@@ -3,15 +3,15 @@ namespace WebShell;
 
 class ShowHistoryAction implements Action
 {
-    public function run(array $args): string
+    public function run(object $args): string
     {
         // Get command history
         $instance = HistoryService::getInstance();
         $history = [];
 
         // Get full or filtered history depending on the args
-        if (array_key_exists('search', $args)) {
-            $history = $instance->searchCommand($args['search']);
+        if (property_exists($args, 'search')) {
+            $history = $instance->searchCommand($args->search);
         } else {
             $history = $instance->getHistory();
         }
