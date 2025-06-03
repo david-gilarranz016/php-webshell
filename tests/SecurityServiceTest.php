@@ -62,7 +62,7 @@ class SecurityServiceTest extends TestCase
         $this->assertEmpty($result);
     }
 
-    public function testEncryptsBodyAndReturnsIv(): void
+    public function testEncryptsBodyAndReturnsBase64EncodedIv(): void
     {
         // Generate a 256 bit key and a sample response
         $key = random_bytes(32);
@@ -79,7 +79,7 @@ class SecurityServiceTest extends TestCase
         ] = $instance->encrypt($response);
 
         // Expect the response to be decryptable
-        $decryptedResponse = openssl_decrypt($body, 'aes-256-cbc', $key, 0, $iv);
+        $decryptedResponse = openssl_decrypt($body, 'aes-256-cbc', $key, 0, base64_decode($iv));
         $this->assertEquals($response, $decryptedResponse);
     }
 

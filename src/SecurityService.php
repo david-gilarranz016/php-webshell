@@ -16,7 +16,7 @@ class SecurityService extends Singleton
         // Return both the encrypted body and the initialization vector
         return [
             'body' => $body,
-            'iv' => $iv
+            'iv' => base64_encode($iv)
         ];
     }
 
