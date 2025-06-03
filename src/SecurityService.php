@@ -5,6 +5,7 @@ class SecurityService extends Singleton
 {
     private $key;
     private $nonce;
+    private $validators = [];
 
     public function encrypt(string $body): array
     {
@@ -22,6 +23,25 @@ class SecurityService extends Singleton
     public function decrypt(string $body, string $iv): string
     {
         return openssl_decrypt($body, 'aes-256-cbc', $this->key, 0, $iv); 
+    }
+
+    public function validate(array $request): bool
+    {
+        // Return `true` by default
+        $valid = true;
+
+        // Pass the request to all configured validators
+        for ($i = 0; $i < count($this->validators) && $valid; $i++) {
+            $valid &= $this->validators[$i]->validate($request);
+        }
+
+        // Return the result
+        return $valid;
+    }
+
+    public function addValidator(Validator $validator): void
+    {
+        array_push($this->validators, $validator);
     }
 
     public function getNonce(): string

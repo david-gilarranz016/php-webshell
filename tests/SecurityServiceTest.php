@@ -5,6 +5,16 @@ use PHPUnit\Framework\TestCase;
 
 class SecurityServiceTest extends TestCase
 {
+    public function tearDown(): void
+    {
+        // After the tests are complete, delete any added validators
+        $instance = SecurityService::getInstance();
+        $reflectedInstance = new \ReflectionObject($instance);
+        $validators = $reflectedInstance->getProperty('validators');
+        $validators->setAccessible(true);
+        $validators->setValue($instance, []);
+    }
+
     public function testIsSingleton(): void
     {
         // Get a SecurityService instance
@@ -84,6 +94,53 @@ class SecurityServiceTest extends TestCase
 
         // Expect nonce to be stored
         $this->assertEquals($nonce, $instance->getNonce());
+    }
+
+    public function testReturnsTrueIfNoValidatorsAreUsedWhenValidatingRequests(): void
+    {
+        // Validate a sample request without configuring validators 
+        $valid = SecurityService::getInstance()->validate([]);
+
+        // Expect the request to be valid
+        $this->assertTrue($valid);
+    }
+
+    public function testUsesSuppliedValidatorsToValidateRequest(): void
+    {
+        // Create two fake validators that result in a valid veredict
+        $request = [ 'headers' => [], 'body' => [] ];
+        $firstValidator = $this->createMock(Validator::class);
+        $firstValidator->expects($this->once())->method('validate')->with($request)->willReturn(true);
+        $secondValidator = $this->createMock(Validator::class);
+        $secondValidator->expects($this->once())->method('validate')->with($request)->willReturn(true);
+
+        // Add the validators to the SecurityService
+        $instance = SecurityService::getInstance();
+        $instance->addValidator($firstValidator);
+        $instance->addValidator($secondValidator);
+
+        // Validate a sample request and expect it to be valid
+        $valid = $instance->validate($request);
+        $this->assertTrue($valid);
+    }
+
+    public function testUsesSuppliedValidatorsToRejectNonValidRequest(): void
+    {
+        // Create two fake validators that result in a false veredict
+        $request = [ 'headers' => [], 'body' => [] ];
+        $firstValidator = $this->createMock(Validator::class);
+        $firstValidator->expects($this->once())->method('validate')->with($request)->willReturn(true);
+        $secondValidator = $this->createMock(Validator::class);
+        $secondValidator->expects($this->once())->method('validate')->with($request)->willReturn(false);
+
+        // Add the validators to the SecurityService
+        $instance = SecurityService::getInstance();
+        $instance->addValidator($firstValidator);
+        $instance->addValidator($secondValidator);
+
+        // Validate a sample request and expect it to be valid
+        $valid = $instance->validate($request);
+        $this->assertFalse($valid);
     }
 }
 ?>
