@@ -71,6 +71,26 @@ class RequestHandlerTest extends TestCase
         $instance->handle();
     }
 
+    public function testItReturnsTheOutputProvidedByTheAction(): void
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testThatIfTheRequestCannotBeDecryptedAnErrorIsReturned(): void
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testItRejectsNonValidRequests(): void
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testErrorMessageIsReturnedForNonExistentActions(): void
+    {
+        $this->markTestIncomplete();
+    }
+
     private function createRequest(array $body): void
     {
         // Set the POST 'body' and 'iv' parameters to the result of json_encoding and 
