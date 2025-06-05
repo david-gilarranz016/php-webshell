@@ -33,6 +33,7 @@ class RequestHandler extends Singleton
             // Encrypt the response's body and build the response
             $response = $securityService->encrypt(json_encode($body));
             $response = json_encode($response);
+            http_response_code(200);
         } else {
             // Set 403 status code 
             http_response_code(403);
