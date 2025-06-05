@@ -102,7 +102,6 @@ class RequestTest extends TestCase
     public function testRequestWithActionAndArgsIsValid(): void
     {
         // Create a request object
-        $nonce = random_bytes(16);
         $request = new Request('1.2.3.4', 'test', new \stdClass());
 
         // Expect it to be valid
