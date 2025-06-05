@@ -25,12 +25,12 @@ class SecurityService extends Singleton
         return openssl_decrypt($body, 'aes-256-cbc', $this->key, 0, $iv); 
     }
 
-    public function validate(array $request): bool
+    public function validate(Request $request): bool
     {
-        // Return `true` by default
-        $valid = true;
+        // Check if the request was successfully decrypted
+        $valid = $request->isValid();
 
-        // Pass the request to all configured validators
+        // Pass the request to all configured validators to test if it meets the security criteria
         for ($i = 0; $i < count($this->validators) && $valid; $i++) {
             $valid &= $this->validators[$i]->validate($request);
         }

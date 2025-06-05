@@ -96,19 +96,30 @@ class SecurityServiceTest extends TestCase
         $this->assertEquals($nonce, $instance->getNonce());
     }
 
-    public function testReturnsTrueIfNoValidatorsAreUsedWhenValidatingRequests(): void
+    public function testReturnsTrueIfNoValidatorsAreUsedWhenValidatingRequestsAndTheRequestCanBeDecrypted(): void
     {
         // Validate a sample request without configuring validators 
-        $valid = SecurityService::getInstance()->validate([]);
+        $request = new Request('1.2.3.4', 'test', new \stdClass(), random_bytes(16));
+        $valid = SecurityService::getInstance()->validate($request);
 
         // Expect the request to be valid
         $this->assertTrue($valid);
     }
 
+    public function testReturnsFalseIfNoValidatorsAreUsedWhenValidatingRequestsAndTheRequestCannotBeDecrypted(): void
+    {
+        // Validate a sample request without configuring validators 
+        $request = new Request();
+        $valid = SecurityService::getInstance()->validate($request);
+
+        // Expect the request not to be valid
+        $this->assertFalse($valid);
+    }
+
     public function testUsesSuppliedValidatorsToValidateRequest(): void
     {
         // Create two fake validators that result in a valid veredict
-        $request = [ 'headers' => [], 'body' => [] ];
+        $request = new Request('1.2.3.4', 'test', new \stdClass(), random_bytes(16));
         $firstValidator = $this->createMock(Validator::class);
         $firstValidator->expects($this->once())->method('validate')->with($request)->willReturn(true);
         $secondValidator = $this->createMock(Validator::class);
@@ -127,7 +138,7 @@ class SecurityServiceTest extends TestCase
     public function testUsesSuppliedValidatorsToRejectNonValidRequest(): void
     {
         // Create two fake validators that result in a false veredict
-        $request = [ 'headers' => [], 'body' => [] ];
+        $request = new Request('1.2.3.4', 'test', new \stdClass(), random_bytes(16));
         $firstValidator = $this->createMock(Validator::class);
         $firstValidator->expects($this->once())->method('validate')->with($request)->willReturn(true);
         $secondValidator = $this->createMock(Validator::class);
