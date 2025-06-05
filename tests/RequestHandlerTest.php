@@ -209,7 +209,26 @@ class RequestHandlerTest extends TestCase
 
     public function testThatIfAnExceptionOccursStatusCode500IsReturned(): void
     {
-        $this->markTestIncomplete();
+        // Initialize variables
+        $key = 'test';
+        $args = (object) [ 'argument' => 'value' ];
+
+        // Create a sample action and force it to raise an error
+        $action = $this->createMock(Action::class);
+        $action->expects($this->once())->method('run')->with($args)->willThrowException(new \Exception());
+
+        // Create a test request
+        $this->createRequest([ 'action' => $key, 'args' => $args ]);
+
+        // Add a request handler for the specified action
+        $instance = RequestHandler::getInstance();
+        $instance->addAction($key, $action);
+
+        // Call the handle() method
+        $instance->handle();
+
+        // Expect the status code to be 500
+        $this->assertEquals(500, http_response_code());
     }
 
     private function createRequest(array $body): void
