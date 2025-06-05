@@ -21,7 +21,7 @@ class IPValidatorTest extends TestCase
         $validator = new IPValidator($ipWhitelist);
 
         // Craft a fake request
-        $request = [ 'source' => $ipWhitelist[1] ];
+        $request = new Request($ipWhitelist[1]);
 
         // Expect the request to be valid
         $valid = $validator->validate($request);
@@ -35,7 +35,7 @@ class IPValidatorTest extends TestCase
         $validator = new IPValidator($ipWhitelist);
 
         // Craft a fake request
-        $request = [ 'source' => '213.41.56.252' ];
+        $request = new Request('213.41.56.252');
 
         // Expect the request to be valid
         $valid = $validator->validate($request);

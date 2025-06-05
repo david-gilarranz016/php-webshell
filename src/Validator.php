@@ -3,6 +3,6 @@ namespace WebShell;
 
 interface Validator
 {
-    public function validate(array $request): bool;
+    public function validate(Request $request): bool;
 }
 ?>

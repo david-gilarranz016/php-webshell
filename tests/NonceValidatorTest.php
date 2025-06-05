@@ -33,7 +33,7 @@ class NonceValidatorTest extends TestCase
         SecurityService::getInstance()->setNonce($nonce);
 
         // Create a valid request and a validator instance
-        $request = [ 'body' => [ 'nonce' => $nonce ] ];
+        $request = new Request('1.2.3.4', 'test', new \stdClass(), $nonce);
         $validator = new NonceValidator;
 
         // Validate the request and expect it to be valid
@@ -48,7 +48,7 @@ class NonceValidatorTest extends TestCase
         SecurityService::getInstance()->setNonce($nonce);
 
         // Create a non valid request and a validator instance
-        $request = [ 'body' => [ 'nonce' => random_bytes(16) ] ];
+        $request = new Request('1.2.3.4', 'test', new \stdClass(), random_bytes(16));
         $validator = new NonceValidator;
 
         // Validate the request and expect it not to be valid
@@ -68,7 +68,7 @@ class NonceValidatorTest extends TestCase
         $random_bytes->expects($this->once())->with(16)->willReturn($newNonce);
 
         // Create and validate a valid request
-        $request = [ 'body' => [ 'nonce' => $nonce ] ];
+        $request = new Request('1.2.3.4', 'test', new \stdClass(), $nonce);
         $validator = new NonceValidator;
         $validator->validate($request);
 
@@ -76,14 +76,14 @@ class NonceValidatorTest extends TestCase
         $this->assertEquals($newNonce, SecurityService::getInstance()->getNonce());
     }
 
-    public function testDoesNotUpdateNonceIfRequestIsValid(): void
+    public function testDoesNotUpdateNonceIfRequestIsNotValid(): void
     {
         // Generate a random nonce and initialize the security service
         $nonce = random_bytes(16);
         SecurityService::getInstance()->setNonce($nonce);
 
         // Create and validate an invalid request
-        $request = [ 'body' => [ 'nonce' => 'non-valid-nonce' ] ];
+        $request = new Request('1.2.3.4', 'test', new \stdClass(), random_bytes(16));
         $validator = new NonceValidator;
         $validator->validate($request);
 

@@ -11,10 +11,10 @@ class IPValidator implements Validator
         $this->ipWhiteList = $ipWhiteList;
     }
 
-    public function validate(array $request): bool
+    public function validate(Request $request): bool
     {
         // Return true if the source address of the request is in the whitelist
-        return in_array($request['source'], $this->ipWhiteList, true);
+        return in_array($request->getSource(), $this->ipWhiteList, true);
     }
 }
 ?>

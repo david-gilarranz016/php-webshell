@@ -3,20 +3,16 @@ namespace WebShell;
 
 class NonceValidator implements Validator
 {
-    public function validate(array $request): bool
+    public function validate(Request $request): bool
     {
-        // Check that the request contains a body, it is an array, it contains a nonce
-        // and the nonce is the one stored in the SecurityService
-        $instance = SecurityService::getInstance();
-        $valid = array_key_exists('body', $request)          &&
-                 is_array($request['body'])                  &&
-                 array_key_exists('nonce', $request['body']) &&
-                 $instance->getNonce() == $request['body']['nonce'];
+        // Check that nonce is the one stored in the SecurityService
+        $securityService = SecurityService::getInstance();
+        $valid = $request->getNonce() == $securityService->getNonce();
 
-        // If valid, update the nonce
+        // If the nonce is valid, update the SecurityService to generate a new Nonce
         if ($valid) {
             $nonce = random_bytes(16);
-            $instance->setNonce($nonce);
+            $securityService->setNonce($nonce);
         }
 
         // Return the validation result
