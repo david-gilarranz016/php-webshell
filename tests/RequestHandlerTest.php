@@ -99,9 +99,52 @@ class RequestHandlerTest extends TestCase
         $this->assertEquals($actionOutput, $body->output);
     }
 
-    public function testThatIfTheRequestCannotBeDecryptedAnErrorIsReturned(): void
+    public function testThatASuccessfulRequestReturnsStatusCode200(): void
     {
         $this->markTestIncomplete();
+    }
+
+    public function testThatIfTheRequestCannotBeDecryptedAnErrorIsReturned(): void
+    {
+        // Initialize variables
+        $key = 'test';
+        $args = (object) [ 'argument' => 'value' ];
+
+        // Create a test request
+        $this->createRequest([ 'action' => $key, 'args' => $args ]);
+
+        // Encrypt the request using a different key
+        $iv = random_bytes(16);
+        $body = openssl_encrypt(json_encode($args), 'aes-256-cbc', random_bytes(32), 0, $iv);
+        $_POST = [ 'body' => $body, 'iv' => base64_encode($iv) ];
+
+        // Handle the request
+        RequestHandler::getInstance()->handle();
+
+        // Expect result status code to be 403
+        $this->assertEquals(403, http_response_code());
+    }
+    
+    public function testThatIfTheRequestCannotBeDecryptedTheResponseBodyIsEmpty(): void
+    {
+        // Initialize variables
+        $key = 'test';
+        $args = (object) [ 'argument' => 'value' ];
+
+        // Create a test request
+        $this->createRequest([ 'action' => $key, 'args' => $args ]);
+
+        // Encrypt the request using a different key
+        $iv = random_bytes(16);
+        $body = openssl_encrypt(json_encode($args), 'aes-256-cbc', random_bytes(32), 0, $iv);
+        $_POST = [ 'body' => $body, 'iv' => base64_encode($iv) ];
+
+        // Handle the request
+        $response = RequestHandler::getInstance()->handle();
+
+        // Expect the response to be an empty string
+        echo $response;
+        $this->assertEmpty($response);
     }
 
     public function testItRejectsNonValidRequests(): void
@@ -110,6 +153,11 @@ class RequestHandlerTest extends TestCase
     }
 
     public function testErrorMessageIsReturnedForNonExistentActions(): void
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testThatIfAnExceptionOccursStatusCode500IsReturned(): void
     {
         $this->markTestIncomplete();
     }

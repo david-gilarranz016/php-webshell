@@ -12,29 +12,49 @@ class RequestHandler extends Singleton
 
     public function handle(): string
     {
-        // Security service instance
+        // Initialize variables
         $securityService = SecurityService::getInstance();
-
-        // Decrypt the request
         $iv = base64_decode($_POST['iv']);
-        $body = $securityService->decrypt($_POST['body'], $iv);
+        $body = $_POST['body'];
+        $response = '';
 
-        // Parse the body
-        $request = json_decode($body);
+        // Validate the request and decrypt body
+        if ($this->validateRequest($body, $iv)) {
+            // Parse the body
+            $request = json_decode($body);
 
-        // Check if there is an appropriate handler configured
-        $body = [];
-        if (array_key_exists($request->action, $this->actions)) {
-            // Call the appropriate action
-            $body['output'] = $this->actions[$request->action]->run($request->args);
+            // Check if there is an appropriate handler configured
+            $body = [];
+            if (array_key_exists($request->action, $this->actions)) {
+                // Call the appropriate action
+                $body['output'] = $this->actions[$request->action]->run($request->args);
+            }
+
+            // Encrypt the response's body and build the response
+            $response = $securityService->encrypt(json_encode($body));
+            $response = json_encode($response);
+        } else {
+            // Set 403 status code 
+            http_response_code(403);
         }
-
-        // Encrypt the response's body and build the response
-        $response = $securityService->encrypt(json_encode($body));
 
         // Set the content-type header
         header('Content-Type: application/json');
-        return json_encode($response);
+        return $response;
+    }
+
+    private function validateRequest(string &$body, string $iv): bool
+    {
+        // Initialize variables
+        $valid = true;
+        $securityService = SecurityService::getInstance()->getInstance();
+
+        // Attempt to decrypt the body (and update the reference). If not possible,
+        // invalidate the request
+        $body = $securityService->decrypt($body, $iv);
+        $valid &= ($body !== '');
+
+        return $valid;
     }
 }
 ?>
