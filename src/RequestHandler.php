@@ -23,14 +23,18 @@ class RequestHandler extends Singleton
         $request = json_decode($body);
 
         // Check if there is an appropriate handler configured
+        $body = [];
         if (array_key_exists($request->action, $this->actions)) {
             // Call the appropriate action
-            $this->actions[$request->action]->run($request->args);
+            $body['output'] = $this->actions[$request->action]->run($request->args);
         }
+
+        // Encrypt the response's body and build the response
+        $response = $securityService->encrypt(json_encode($body));
 
         // Set the content-type header
         header('Content-Type: application/json');
-        return '';
+        return json_encode($response);
     }
 }
 ?>

@@ -73,7 +73,30 @@ class RequestHandlerTest extends TestCase
 
     public function testItReturnsTheOutputProvidedByTheAction(): void
     {
-        $this->markTestIncomplete();
+        // Initialize variables
+        $key = 'test';
+        $args = (object) [ 'argument' => 'value' ];
+        $actionOutput = 'Sample output';
+
+        // Create a sample action and expect it to be called with the created arguments
+        $action = $this->createMock(Action::class);
+        $action->expects($this->once())->method('run')->with($args)->willReturn($actionOutput);
+
+        // Create a test request
+        $this->createRequest([ 'action' => $key, 'args' => $args ]);
+
+        // Add a request handler for the specified action
+        $instance = RequestHandler::getInstance();
+        $instance->addAction($key, $action);
+
+        // Call the handle() method and decrypt the response
+        $response = json_decode($instance->handle());
+        $iv = base64_decode($response->iv);
+        $jsonBody = SecurityService::getInstance()->decrypt($response->body, $iv);
+        $body = json_decode($jsonBody);
+
+        // Expect the response's output to match the Action's output
+        $this->assertEquals($actionOutput, $body->output);
     }
 
     public function testThatIfTheRequestCannotBeDecryptedAnErrorIsReturned(): void
