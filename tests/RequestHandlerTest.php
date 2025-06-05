@@ -13,6 +13,9 @@ class RequestHandlerTest extends TestCase
         $key = random_bytes(32);
         SecurityService::getInstance()->setKey($key);
 
+        // Set a default request source IP
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        
         // Initialize $_POST to an empty request to avoid errors on tests that do not
         // provide a specific request
         $this->createRequest(['action' => null]);
@@ -21,11 +24,19 @@ class RequestHandlerTest extends TestCase
     public function tearDown(): void
     {
         // Clear all added actions
-        $instance = RequestHandler::getInstance();
-        $reflectedInstance = new \ReflectionObject($instance);
-        $actions = $reflectedInstance->getProperty('actions');
+        $requestHandler = RequestHandler::getInstance();
+        $reflectedHandler = new \ReflectionObject($requestHandler);
+        $actions = $reflectedHandler->getProperty('actions');
         $actions->setAccessible(true);
-        $actions->setValue($instance, []);
+        $actions->setValue($requestHandler, []);
+
+        // Clear all added validators
+        $securityService = SecurityService::getInstance();
+        $reflectedService = new \ReflectionObject($securityService);
+        $actions = $reflectedService->getProperty('validators');
+        $actions->setAccessible(true);
+        $actions->setValue($securityService, []);
+
 
         // Reset modified global variables
         $_POST = [];
@@ -168,12 +179,32 @@ class RequestHandlerTest extends TestCase
 
     public function testItRejectsNonValidRequests(): void
     {
-        $this->markTestIncomplete();
+        // Initialize variables
+        $key = 'test';
+        $args = (object) [ 'argument' => 'value' ];
+
+        // Add an IP validator for a non-existent IP address, so as to invalidate the request
+        $validator = new IPValidator(['1.2.3.4']);
+        SecurityService::getInstance()->addValidator($validator);
+        
+        // Create and handle the request
+        $this->createRequest([ 'action' => $key, 'args' => $args ]);
+        RequestHandler::getInstance()->handle();
+
+        // Expect the status code to be 403
+        $this->assertEquals(403, http_response_code());
     }
 
-    public function testErrorMessageIsReturnedForNonExistentActions(): void
+    public function testStatusCode404IsReturnedForNonExistentActions(): void
     {
-        $this->markTestIncomplete();
+        // Create a request for a non-existing actions
+        $this->createRequest([ 'action' => 'non-existent', 'args' => new \stdClass() ]);
+
+        // Call the handle() method
+        RequestHandler::getInstance()->handle();
+
+        // Expect the status code to be 404
+        $this->assertEquals(404, http_response_code());
     }
 
     public function testThatIfAnExceptionOccursStatusCode500IsReturned(): void

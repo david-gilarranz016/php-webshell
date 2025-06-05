@@ -10,30 +10,29 @@ class RequestHandler extends Singleton
         $this->actions[$key] = $action;
     }
 
-    public function handle(): string
+    public function handle(): ?string
     {
-        // Initialize variables
-        $securityService = SecurityService::getInstance();
-        $iv = base64_decode($_POST['iv']);
-        $body = $_POST['body'];
-        $response = '';
+        // Prepare request object
+        $request = $this->unpackRequest();
+        $response = null;
 
         // Validate the request and decrypt body
-        if ($this->validateRequest($body, $iv)) {
-            // Parse the body
-            $request = json_decode($body);
+        if ($this->validateRequest($request)) {
+            $body = [];
 
             // Check if there is an appropriate handler configured
-            $body = [];
-            if (array_key_exists($request->action, $this->actions)) {
+            if (array_key_exists($request->getAction(), $this->actions)) {
                 // Call the appropriate action
-                $body['output'] = $this->actions[$request->action]->run($request->args);
+                $body['output'] = $this->actions[$request->getAction()]->run($request->getArgs());
+
+                // Encrypt the response's body and build the response
+                $response = SecurityService::getInstance()->encrypt(json_encode($body));
+                $response = json_encode($response);
+                http_response_code(200);
+            } else {
+                http_response_code(404);
             }
 
-            // Encrypt the response's body and build the response
-            $response = $securityService->encrypt(json_encode($body));
-            $response = json_encode($response);
-            http_response_code(200);
         } else {
             // Set 403 status code 
             http_response_code(403);
@@ -44,18 +43,32 @@ class RequestHandler extends Singleton
         return $response;
     }
 
-    private function validateRequest(string &$body, string $iv): bool
+    private function unpackRequest(): Request
     {
-        // Initialize variables
-        $valid = true;
-        $securityService = SecurityService::getInstance()->getInstance();
+        // Decrypt request body
+        $iv = base64_decode($_POST['iv']);
+        $encryptedBody = $_POST['body'];
+        $jsonBody = SecurityService::getInstance()->decrypt($encryptedBody, $iv);
 
-        // Attempt to decrypt the body (and update the reference). If not possible,
-        // invalidate the request
-        $body = $securityService->decrypt($body, $iv);
-        $valid &= ($body !== '');
+        // If the body cannot be decripted, return empty request. Otherwise, populate its values
+        if ($jsonBody !== '') {
+            $body = json_decode($jsonBody);
+            $request = new Request(
+                $_SERVER['REMOTE_ADDR'],
+                property_exists($body, 'action') ? $body->action : null,
+                property_exists($body, 'args') ? $body->args : null,
+                property_exists($body, 'nonce') ? $body->nonce : null
+            );
+        } else {
+            $request = new Request();
+        }
 
-        return $valid;
+        return $request;
+    }
+
+    private function validateRequest(Request $request): bool
+    {
+        return SecurityService::getInstance()->validate($request);
     }
 }
 ?>
