@@ -7,14 +7,16 @@ class NonceValidatorTest extends TestCase
 {
     use \phpmock\phpunit\PHPMock;
 
-    /**
-     * Define the random_bytes function mock before running the class to fix Bug #68541
-     *
-     * @beforeClass
-     */ 
+    public static function setUpBeforeClass(): void
+    {
+        // Define the random_bytes function mock before running the class to fix Bug #68541
+        static::defineFunctionMock(__NAMESPACE__, 'random_bytes');
+    }
+
     public function setUp(): void
     {
-        $this->defineFunctionMock(__NAMESPACE__, 'random_bytes');
+        // Reset the Nonce to its original value
+        SecurityService::getInstance()->setNonce('');
     }
 
     public function testImplementsValidatorInterface(): void
