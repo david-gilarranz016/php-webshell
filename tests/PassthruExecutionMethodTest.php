@@ -166,5 +166,31 @@ class PassthruExecutionMethodTest extends TestCase
         // Verify the output file has been deleted from the file passthru
         $this->assertFalse(file_exists('72616e646f6d5f746d705f66696c656e616d65.txt'));
     }
+    
+    public function testIsAvailableReturnsFalseIfTheFunctionIsBlocked(): void
+    {
+        // Create an PassthruExecutionMethod instance
+        $passthruExecutionMethod = new PassthruExecutionMethod();  
+        
+        // Mock the built-in `function_exists()` function
+        $function_exists = $this->getFunctionMock(__NAMESPACE__, "function_exists");
+        $function_exists->expects($this->once())->with('passthru')->willReturn(false);
+
+        // Expect isAvailable() to return false
+        $this->assertFalse($passthruExecutionMethod->isAvailable());
+    }
+
+    public function testIsAvailableReturnsTrueIfTheFunctionIsNotlocked(): void
+    {
+        // Create an PassthruExecutionMethod instance
+        $passthruExecutionMethod = new PassthruExecutionMethod();  
+        
+        // Mock the built-in `function_exists()` function
+        $function_exists = $this->getFunctionMock(__NAMESPACE__, "function_exists");
+        $function_exists->expects($this->once())->with('passthru')->willReturn(true);
+
+        // Expect isAvailable() to return false
+        $this->assertTrue($passthruExecutionMethod->isAvailable());
+    }
 }
 ?>

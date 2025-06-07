@@ -67,5 +67,31 @@ class ExecExecutionMethodTest extends TestCase
         $result = $execExecutionMethod->execute($cmd);
         $this->assertEquals($output, $result);
     }
+
+    public function testIsAvailableReturnsFalseIfTheFunctionIsBlocked(): void
+    {
+        // Create an ExecExecutionMethod instance
+        $execExecutionMethod = new ExecExecutionMethod();  
+        
+        // Mock the built-in `function_exists()` function
+        $function_exists = $this->getFunctionMock(__NAMESPACE__, "function_exists");
+        $function_exists->expects($this->once())->with('exec')->willReturn(false);
+
+        // Exepct isAvailable() to return false
+        $this->assertFalse($execExecutionMethod->isAvailable());
+    }
+
+    public function testIsAvailableReturnsTrueIfTheFunctionIsNotlocked(): void
+    {
+        // Create an ExecExecutionMethod instance
+        $execExecutionMethod = new ExecExecutionMethod();  
+        
+        // Mock the built-in `function_exists()` function
+        $function_exists = $this->getFunctionMock(__NAMESPACE__, "function_exists");
+        $function_exists->expects($this->once())->with('exec')->willReturn(true);
+
+        // Exepct isAvailable() to return false
+        $this->assertTrue($execExecutionMethod->isAvailable());
+    }
 }
 ?>

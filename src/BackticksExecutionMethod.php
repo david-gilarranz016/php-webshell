@@ -7,5 +7,10 @@ class BackticksExecutionMethod implements ExecutionMethod
     {
         return `$cmd`;
     }
+
+    public function isAvailable(): bool
+    {
+        return function_exists('shell_exec') && !ini_get('safe_mode');
+    }
 }
 ?>

@@ -7,5 +7,10 @@ final class SystemExecutionMethod extends BlindExecutionMethod
     {
         system($cmd);
     }
+
+    public function isAvailable(): bool
+    {
+        return function_exists('system');
+    }
 }
 ?>

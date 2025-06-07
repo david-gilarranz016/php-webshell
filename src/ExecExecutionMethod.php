@@ -9,5 +9,10 @@ class ExecExecutionMethod implements ExecutionMethod
         exec($cmd, $output);
         return implode("\n", $output);
     }
+
+    public function isAvailable(): bool
+    {
+        return function_exists('exec');
+    }
 }
 ?>

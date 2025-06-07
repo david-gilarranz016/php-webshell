@@ -47,5 +47,31 @@ class ShellExecExecutionMethodTest extends TestCase
         $result = $shellExecExecutionMethod->execute($cmd);
         $this->assertEquals($output, $result);
     }
+
+    public function testIsAvailableReturnsFalseIfTheFunctionIsBlocked(): void
+    {
+        // Create an SystemExecutionMethod instance
+        $shellExecExecutionMethod = new ShellExecExecutionMethod();  
+        
+        // Mock the built-in `function_exists()` function
+        $function_exists = $this->getFunctionMock(__NAMESPACE__, "function_exists");
+        $function_exists->expects($this->once())->with('shell_exec')->willReturn(false);
+
+        // Exepct isAvailable() to return false
+        $this->assertFalse($shellExecExecutionMethod->isAvailable());
+    }
+
+    public function testIsAvailableReturnsTrueIfTheFunctionIsNotlocked(): void
+    {
+        // Create an SystemExecutionMethod instance
+        $shellExecExecutionMethod = new ShellExecExecutionMethod();  
+        
+        // Mock the built-in `function_exists()` function
+        $function_exists = $this->getFunctionMock(__NAMESPACE__, "function_exists");
+        $function_exists->expects($this->once())->with('shell_exec')->willReturn(true);
+
+        // Exepct isAvailable() to return false
+        $this->assertTrue($shellExecExecutionMethod->isAvailable());
+    }
 }
 ?>

@@ -7,5 +7,10 @@ final class PassthruExecutionMethod extends BlindExecutionMethod
     {
         passthru($cmd);
     }
+
+    public function isAvailable(): bool
+    {
+        return function_exists('passthru');
+    }
 }
 ?>

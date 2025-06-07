@@ -7,5 +7,10 @@ class ShellExecExecutionMethod implements ExecutionMethod
     {
         return shell_exec($cmd);
     }
+
+    public function isAvailable(): bool
+    {
+        return function_exists('shell_exec');
+    }
 }
 ?>

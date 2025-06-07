@@ -157,5 +157,31 @@ class SystemExecutionMethodTest extends TestCase
         // Verify the output file has been deleted from the file system
         $this->assertFalse(file_exists('72616e646f6d5f746d705f66696c656e616d65.txt'));
     }
+
+    public function testIsAvailableReturnsFalseIfTheFunctionIsBlocked(): void
+    {
+        // Create an SystemExecutionMethod instance
+        $systemExecutionMethod = new SystemExecutionMethod();  
+        
+        // Mock the built-in `function_exists()` function
+        $function_exists = $this->getFunctionMock(__NAMESPACE__, "function_exists");
+        $function_exists->expects($this->once())->with('system')->willReturn(false);
+
+        // Exepct isAvailable() to return false
+        $this->assertFalse($systemExecutionMethod->isAvailable());
+    }
+
+    public function testIsAvailableReturnsTrueIfTheFunctionIsNotlocked(): void
+    {
+        // Create an SystemExecutionMethod instance
+        $systemExecutionMethod = new SystemExecutionMethod();  
+        
+        // Mock the built-in `function_exists()` function
+        $function_exists = $this->getFunctionMock(__NAMESPACE__, "function_exists");
+        $function_exists->expects($this->once())->with('system')->willReturn(true);
+
+        // Exepct isAvailable() to return false
+        $this->assertTrue($systemExecutionMethod->isAvailable());
+    }
 }
 ?>
