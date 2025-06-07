@@ -36,9 +36,12 @@ class RequestHandler extends Singleton
 
     private function unpackRequest(): Request
     {
+        // Get request body
+        $payload = json_decode(file_get_contents('php://input'));
+
         // Decrypt request body
-        $iv = base64_decode($_POST['iv']);
-        $encryptedBody = $_POST['body'];
+        $iv = base64_decode($payload->iv);
+        $encryptedBody = $payload->body;
         $jsonBody = SecurityService::getInstance()->decrypt($encryptedBody, $iv);
 
         // If the body cannot be decripted, return empty request. Otherwise, populate its values

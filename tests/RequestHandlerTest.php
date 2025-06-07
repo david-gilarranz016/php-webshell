@@ -15,10 +15,6 @@ class RequestHandlerTest extends TestCase
 
         // Set a default request source IP
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-        
-        // Initialize $_POST to an empty request to avoid errors on tests that do not
-        // provide a specific request
-        $this->createRequest(['action' => null]);
     }
 
     public function tearDown(): void
@@ -36,10 +32,6 @@ class RequestHandlerTest extends TestCase
         $actions = $reflectedService->getProperty('validators');
         $actions->setAccessible(true);
         $actions->setValue($securityService, []);
-
-
-        // Reset modified global variables
-        $_POST = [];
     }
 
     public function testIsSingleton(): void
@@ -57,6 +49,9 @@ class RequestHandlerTest extends TestCase
         $headers = $this->getFunctionMock(__NAMESPACE__, 'header');
         $headers->expects($this->once())->with('Content-Type: application/json');
 
+        // Create a sample request
+        $this->createInvalidRequest('', '');
+
         // Call the handle() method
         RequestHandler::getInstance()->handle();
     }
@@ -72,7 +67,7 @@ class RequestHandlerTest extends TestCase
         $action->expects($this->once())->method('run')->with($args)->willReturn('');
 
         // Create a test request
-        $this->createRequest([ 'action' => $key, 'args' => $args ]);
+        $this->createValidRequest([ 'action' => $key, 'args' => $args ]);
 
         // Add a request handler for the specified action
         $instance = RequestHandler::getInstance();
@@ -94,7 +89,7 @@ class RequestHandlerTest extends TestCase
         $action->expects($this->once())->method('run')->with($args)->willReturn($actionOutput);
 
         // Create a test request
-        $this->createRequest([ 'action' => $key, 'args' => $args ]);
+        $this->createValidRequest([ 'action' => $key, 'args' => $args ]);
 
         // Add a request handler for the specified action
         $instance = RequestHandler::getInstance();
@@ -121,7 +116,7 @@ class RequestHandlerTest extends TestCase
         $action->expects($this->once())->method('run')->with($args)->willReturn('');
 
         // Create a test request
-        $this->createRequest([ 'action' => $key, 'args' => $args ]);
+        $this->createValidRequest([ 'action' => $key, 'args' => $args ]);
 
         // Add a request handler for the specified action
         $instance = RequestHandler::getInstance();
@@ -140,13 +135,10 @@ class RequestHandlerTest extends TestCase
         $key = 'test';
         $args = (object) [ 'argument' => 'value' ];
 
-        // Create a test request
-        $this->createRequest([ 'action' => $key, 'args' => $args ]);
-
         // Encrypt the request using a different key
         $iv = random_bytes(16);
         $body = openssl_encrypt(json_encode($args), 'aes-256-cbc', random_bytes(32), 0, $iv);
-        $_POST = [ 'body' => $body, 'iv' => base64_encode($iv) ];
+        $this->createInvalidRequest($body, $iv);
 
         // Handle the request
         RequestHandler::getInstance()->handle();
@@ -161,13 +153,10 @@ class RequestHandlerTest extends TestCase
         $key = 'test';
         $args = (object) [ 'argument' => 'value' ];
 
-        // Create a test request
-        $this->createRequest([ 'action' => $key, 'args' => $args ]);
-
         // Encrypt the request using a different key
         $iv = random_bytes(16);
         $body = openssl_encrypt(json_encode($args), 'aes-256-cbc', random_bytes(32), 0, $iv);
-        $_POST = [ 'body' => $body, 'iv' => base64_encode($iv) ];
+        $this->createInvalidRequest($body, $iv);
 
         // Handle the request
         $response = RequestHandler::getInstance()->handle();
@@ -188,7 +177,7 @@ class RequestHandlerTest extends TestCase
         SecurityService::getInstance()->addValidator($validator);
         
         // Create and handle the request
-        $this->createRequest([ 'action' => $key, 'args' => $args ]);
+        $this->createValidRequest([ 'action' => $key, 'args' => $args ]);
         RequestHandler::getInstance()->handle();
 
         // Expect the status code to be 403
@@ -198,7 +187,7 @@ class RequestHandlerTest extends TestCase
     public function testStatusCode404IsReturnedForNonExistentActions(): void
     {
         // Create a request for a non-existing actions
-        $this->createRequest([ 'action' => 'non-existent', 'args' => new \stdClass() ]);
+        $this->createValidRequest([ 'action' => 'non-existent', 'args' => new \stdClass() ]);
 
         // Call the handle() method
         RequestHandler::getInstance()->handle();
@@ -218,7 +207,7 @@ class RequestHandlerTest extends TestCase
         $action->expects($this->once())->method('run')->with($args)->willThrowException(new \Exception());
 
         // Create a test request
-        $this->createRequest([ 'action' => $key, 'args' => $args ]);
+        $this->createValidRequest([ 'action' => $key, 'args' => $args ]);
 
         // Add a request handler for the specified action
         $instance = RequestHandler::getInstance();
@@ -231,11 +220,29 @@ class RequestHandlerTest extends TestCase
         $this->assertEquals(500, http_response_code());
     }
 
-    private function createRequest(array $body): void
+    private function createValidRequest(array $body): void
     {
-        // Set the POST 'body' and 'iv' parameters to the result of json_encoding and 
-        // encrypting the supplied array
-        $_POST = SecurityService::getInstance()->encrypt(json_encode($body));
+        // Set the request contents as the expected JSON payload
+        $file_get_contents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
+        $file_get_contents->expects($this->once())->with('php://input')->willReturn(
+            json_encode(
+                SecurityService::getInstance()->encrypt(json_encode($body))
+            )
+        );
+    }
+
+    private function createInvalidRequest(string $body, string $iv): void
+    {
+        // Set the request contents as the expected JSON payload
+        $file_get_contents = $this->getFunctionMock(__NAMESPACE__, 'file_get_contents');
+        $file_get_contents->expects($this->once())->with('php://input')->willReturn(
+            json_encode(
+                [
+                    'body' => $body,
+                    'iv' => base64_encode($iv)
+                ]
+            )
+        );
     }
 }
 ?>
