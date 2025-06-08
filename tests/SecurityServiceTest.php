@@ -13,6 +13,9 @@ class SecurityServiceTest extends TestCase
         $validators = $reflectedInstance->getProperty('validators');
         $validators->setAccessible(true);
         $validators->setValue($instance, []);
+
+        // Reset nonce
+        unset($_SESSION['nonce']);
     }
 
     public function testIsSingleton(): void
@@ -90,10 +93,19 @@ class SecurityServiceTest extends TestCase
 
         // Initialize the SecurityService
         $instance = SecurityService::getInstance();
-        $instance->setNonce($nonce);
+        $_SESSION['nonce'] = $nonce;
 
         // Expect nonce to be stored
         $this->assertEquals($nonce, $instance->getNonce());
+    }
+
+    public function testReturnsEmptyNonceIfNoNonceIsSet(): void
+    {
+        // Initialize the SecurityService
+        $instance = SecurityService::getInstance();
+
+        // Expect nonce to be empty
+        $this->assertEmpty($instance->getNonce());
     }
 
     public function testReturnsTrueIfNoValidatorsAreUsedWhenValidatingRequestsAndTheRequestCanBeDecrypted(): void

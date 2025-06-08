@@ -4,7 +4,6 @@ namespace WebShell;
 class SecurityService extends Singleton
 {
     private $key;
-    private $nonce;
     private $validators = [];
 
     public function encrypt(string $body): array
@@ -46,7 +45,15 @@ class SecurityService extends Singleton
 
     public function getNonce(): string
     {
-        return $this->nonce;
+        // Initialize emtpy nonce
+        $nonce = '';
+
+        // If a nonce has been set, return it
+        if (isset($_SESSION['nonce'])) {
+            $nonce = $_SESSION['nonce'];
+        }
+
+        return $nonce;
     }
 
     public function setKey(string $key): void
@@ -56,7 +63,7 @@ class SecurityService extends Singleton
 
     public function setNonce(string $nonce): void
     {
-        $this->nonce = $nonce;
+        $_SESSION['nonce'] = $nonce;
     }
 }
 ?>
