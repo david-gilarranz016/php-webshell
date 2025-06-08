@@ -23,7 +23,7 @@ abstract class Singleton
         }
 
         // Return the instance corresponding to the subclass
-        return self::$instances[$cls];
+        return static::$instances[$cls];
     }
 }
 ?>
