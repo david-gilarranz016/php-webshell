@@ -15,6 +15,9 @@ class AddNonceValidatorStepTest extends TestCase
 
         // Reset its value
         $validators->setValue($instance, []);
+
+        // Clear session
+        unset($_SESSION['nonce']);
     }
 
     public function testImplementsStepInterface(): void
@@ -49,6 +52,21 @@ class AddNonceValidatorStepTest extends TestCase
         // Expect the Nonce to have been initialzied
         $this->assertEquals($nonce, SecurityService::getInstance()->getNonce());
     }
+
+    public function testUsesPreviouslySetNonceValidatorIfSessionIsNotNew(): void
+    {
+        // Simulate existing session
+        $nonce = random_bytes(16);
+        $_SESSION['nonce'] = $nonce;
+
+        // Call the step
+        $step = new AddNonceValidatorStep(random_bytes(16));
+        $step->run();
+
+        // Expect the Nonce to retain its original value
+        $this->assertEquals($nonce, SecurityService::getInstance()->getNonce());
+    }
+
 
     private function getValidators(): array
     {

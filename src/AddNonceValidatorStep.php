@@ -16,8 +16,10 @@ class AddNonceValidatorStep implements Step
         $nonceValidator = new NonceValidator;
         SecurityService::getInstance()->addValidator($nonceValidator);
 
-        // Initialize the nonce
-        SecurityService::getInstance()->setNonce($this->nonce);
+        // If not initialized, set the initial nonce value
+        if (!isset($_SESSION['nonce'])) {
+            SecurityService::getInstance()->setNonce($this->nonce);
+        }
     }
 }
 ?>
