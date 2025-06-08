@@ -20,7 +20,7 @@ class AddNonceValidatorStepTest extends TestCase
     public function testImplementsStepInterface(): void
     {
         // Get a step instance
-        $step = new AddNonceValidatorStep();
+        $step = new AddNonceValidatorStep(random_bytes(16));
 
         // Verify it is a Step
         $this->assertInstanceOf(Step::class, $step);
@@ -28,12 +28,8 @@ class AddNonceValidatorStepTest extends TestCase
 
     public function testAddsANonceValidatorToTheListOfSecurityServiceValidators(): void
     {
-        // Initialize variables
-        $nonce = random_bytes(16);
-        SecurityService::getInstance()->setNonce($nonce);
-
         // Call the step
-        $step = new AddNonceValidatorStep();
+        $step = new AddNonceValidatorStep(random_bytes(16));
         $step->run();
 
         // Get the list of validators and expect it to contain the Nonce validator
@@ -41,8 +37,17 @@ class AddNonceValidatorStepTest extends TestCase
         $this->assertInstanceOf(NonceValidator::class, $validators[0]);
     }
 
-    private function setValidators(array $validators): void
+    public function testInicializesSecurityServiceNonce(): void
     {
+        // Initialize variables
+        $nonce = random_bytes(16);
+
+        // Call the step
+        $step = new AddNonceValidatorStep($nonce);
+        $step->run();
+
+        // Expect the Nonce to have been initialzied
+        $this->assertEquals($nonce, SecurityService::getInstance()->getNonce());
     }
 
     private function getValidators(): array
