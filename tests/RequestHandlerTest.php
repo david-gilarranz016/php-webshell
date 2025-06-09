@@ -147,7 +147,7 @@ class RequestHandlerTest extends TestCase
         $this->assertEquals(403, http_response_code());
     }
     
-    public function testThatIfTheRequestCannotBeDecryptedTheResponseBodyIsEmpty(): void
+    public function testThatIfTheRequestCannotBeDecryptedTheResponseBodyOnlyContainsTheNonce(): void
     {
         // Initialize variables
         $key = 'test';
@@ -159,11 +159,14 @@ class RequestHandlerTest extends TestCase
         $this->createInvalidRequest($body, $iv);
 
         // Handle the request
-        $response = RequestHandler::getInstance()->handle();
+        $response = json_decode(RequestHandler::getInstance()->handle());
+        $iv = base64_decode($response->iv);
+        $jsonBody = SecurityService::getInstance()->decrypt($response->body, $iv);
+        $body = json_decode($jsonBody);
 
-        // Expect the response to be an empty string
-        echo $response;
-        $this->assertEmpty($response);
+        // Expect the response to not contain output
+        $this->assertFalse(property_exists($body, 'output'));
+        $this->assertTrue(property_exists($body, 'nonce'));
     }
 
     public function testItRejectsNonValidRequests(): void
@@ -218,6 +221,34 @@ class RequestHandlerTest extends TestCase
 
         // Expect the status code to be 500
         $this->assertEquals(500, http_response_code());
+    }
+
+    public function testIncludesNonceInResponse(): void
+    {
+        // Initialize variables
+        $key = 'test';
+        $args = (object) [ 'argument' => 'value' ];
+        $actionOutput = 'Sample output';
+
+        // Create a sample action and expect it to be called with the created arguments
+        $action = $this->createMock(Action::class);
+        $action->expects($this->once())->method('run')->with($args)->willReturn($actionOutput);
+
+        // Create a test request
+        $this->createValidRequest([ 'action' => $key, 'args' => $args ]);
+
+        // Add a request handler for the specified action
+        $instance = RequestHandler::getInstance();
+        $instance->addAction($key, $action);
+
+        // Call the handle() method and decrypt the response
+        $response = json_decode($instance->handle());
+        $iv = base64_decode($response->iv);
+        $jsonBody = SecurityService::getInstance()->decrypt($response->body, $iv);
+        $body = json_decode($jsonBody);
+
+        // Expect the response's Nonce to match the SecurityService's nonce
+        $this->assertEquals(SecurityService::getInstance()->getNonce(), $body->nonce);
     }
 
     private function createValidRequest(array $body): void

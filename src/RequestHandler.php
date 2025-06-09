@@ -93,18 +93,26 @@ class RequestHandler extends Singleton
 
     private function buildResponse(int $code, ?array $body = null): ?string
     {
+        // Initialize variables
+        $response = null;
+        $securityService = SecurityService::getInstance();
+
         // Set the Content-Type header
         header('Content-Type: application/json');
 
         // Set the response code
         http_response_code($code);
-        $response = null;
 
-        // If a body is supplied, encrypt it
+        // If a body is supplied, add the nonce, if not, create a body with the nonce
         if (!is_null($body)) {
-            $encryptedBody = SecurityService::getInstance()->encrypt(json_encode($body));
-            $response = json_encode($encryptedBody);
+            $body['nonce'] = $securityService->getNonce();
+        } else {
+            $body = [ 'nonce' => $securityService->getNonce() ];
         }
+
+        // Encrypt the body and build the response
+        $encryptedBody = $securityService->encrypt(json_encode($body));
+        $response = json_encode($encryptedBody);
 
         // Return the response
         return $response;
