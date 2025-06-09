@@ -31,7 +31,7 @@ class NonceValidatorTest extends TestCase
     public function testValidatesNonceAgainstSecurityService(): void
     {
         // Generate a random nonce and initialize the security service
-        $nonce = random_bytes(16);
+        $nonce = bin2hex(random_bytes(16));
         SecurityService::getInstance()->setNonce($nonce);
 
         // Create a valid request and a validator instance
@@ -46,11 +46,11 @@ class NonceValidatorTest extends TestCase
     public function testValidatesNonceAgainstSecurityServiceAndRejectsNonValidRequests(): void
     {
         // Generate a random nonce and initialize the security service
-        $nonce = random_bytes(16);
+        $nonce = bin2hex(random_bytes(16));
         SecurityService::getInstance()->setNonce($nonce);
 
         // Create a non valid request and a validator instance
-        $request = new Request('1.2.3.4', 'test', new \stdClass(), random_bytes(16));
+        $request = new Request('1.2.3.4', 'test', new \stdClass(), bin2hex(random_bytes(16)));
         $validator = new NonceValidator;
 
         // Validate the request and expect it not to be valid
@@ -61,11 +61,11 @@ class NonceValidatorTest extends TestCase
     public function testUpdatesNonceIfRequestIsValid(): void
     {
         // Generate a random nonce and initialize the security service
-        $nonce = '0x92847f7ed261cc4d7ec0dacb6310b1db';
+        $nonce = '92847f7ed261cc4d7ec0dacb6310b1db';
         SecurityService::getInstance()->setNonce($nonce);
 
         // Mock the random_bytes function to return a canned result
-        $newNonce = '0x335513fa6154be4225a22befb24cd852';
+        $newNonce = hex2bin('335513fa6154be4225a22befb24cd852');
         $random_bytes = $this->getFunctionMock(__NAMESPACE__, "random_bytes");
         $random_bytes->expects($this->once())->with(16)->willReturn($newNonce);
 
@@ -74,14 +74,14 @@ class NonceValidatorTest extends TestCase
         $validator = new NonceValidator;
         $validator->validate($request);
 
-        // Expect the SecurityService's nonce to have been updated
-        $this->assertEquals($newNonce, SecurityService::getInstance()->getNonce());
+        // Expect the SecurityService's nonce to have been updated and HEX-encoded
+        $this->assertEquals(bin2hex($newNonce), SecurityService::getInstance()->getNonce());
     }
 
     public function testDoesNotUpdateNonceIfRequestIsNotValid(): void
     {
         // Generate a random nonce and initialize the security service
-        $nonce = random_bytes(16);
+        $nonce = bin2hex(random_bytes(16));
         SecurityService::getInstance()->setNonce($nonce);
 
         // Create and validate an invalid request

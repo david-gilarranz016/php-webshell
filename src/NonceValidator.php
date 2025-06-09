@@ -11,7 +11,7 @@ class NonceValidator implements Validator
 
         // If the nonce is valid, update the SecurityService to generate a new Nonce
         if ($valid) {
-            $nonce = random_bytes(16);
+            $nonce = bin2hex(random_bytes(16));
             $securityService->setNonce($nonce);
         }
 
