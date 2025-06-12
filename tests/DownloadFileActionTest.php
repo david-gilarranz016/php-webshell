@@ -1,19 +1,11 @@
 <?php
 namespace WebShell;
 
-use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\TestCase;
 
 class DownloadFileActionTest extends TestCase
 {
-    // Virtual filesystem's root 
-    private $root;
-
-    // Set up virutal filesystem
-    public function setUp(): void
-    {
-        $this->root = vfsStream::setup('root');
-    }
+    use \phpmock\phpunit\PHPMock;
 
     public function testImplementsActionInterface(): void
     {
@@ -24,18 +16,65 @@ class DownloadFileActionTest extends TestCase
         $this->assertInstanceOf(Action::class, $action);
     }
 
-    public function testReturnsBase64EncodedFile(): void
+    public function testReturnsBase64EncodedTextFile(): void
     {
-        // Create test file
-        $filename = vfsStream::url('root/test.txt');
+        // Initialize variables
+        $fd = 3;
+        $filename = 'test.txt';
         $content = 'This is a test file.';
-        $fd = fopen($filename, 'w');
-        fwrite($fd, $content);
+        $size = 20;
+
+        // Mock fopen, fread, filesize and fclose
+        $fopen = $this->getFunctionMock(__NAMESPACE__, 'fopen');
+        $fopen->expects($this->once())->with($filename, 'r')->willReturn($fd);
+
+        $filesize = $this->getFunctionMock(__NAMESPACE__, 'filesize');
+        $filesize->expects($this->once())->with($filename)->willReturn($size);
+
+        $fread = $this->getFunctionMock(__NAMESPACE__, 'fread');
+        $fread->expects($this->once())->with($fd, $size)->willReturn($content);
+
+        $fclose = $this->getFunctionMock(__NAMESPACE__, 'fclose');
+        $fclose->expects($this->once())->with($fd);
 
         // Call the DownloadFileAction
         $action = new DownloadFileAction;
         $args = (object) [
-            'filename' => $filename
+            'filename' => $filename,
+            'binary' => false
+        ];
+        $result = $action->run($args);
+
+        // Expect the result to be the base64 encoded file
+        $this->assertEquals(base64_encode($content), $result);
+    }
+
+    public function testReturnsBase64EncodedBinaryFile(): void
+    {
+        // Initialize variables
+        $fd = 3;
+        $filename = 'test.txt';
+        $content = random_bytes(16);
+        $size = 16;
+
+        // Mock fopen, fread, filesize and fclose
+        $fopen = $this->getFunctionMock(__NAMESPACE__, 'fopen');
+        $fopen->expects($this->once())->with($filename, 'rb')->willReturn($fd);
+
+        $filesize = $this->getFunctionMock(__NAMESPACE__, 'filesize');
+        $filesize->expects($this->once())->with($filename)->willReturn($size);
+
+        $fread = $this->getFunctionMock(__NAMESPACE__, 'fread');
+        $fread->expects($this->once())->with($fd, $size)->willReturn($content);
+
+        $fclose = $this->getFunctionMock(__NAMESPACE__, 'fclose');
+        $fclose->expects($this->once())->with($fd);
+
+        // Call the DownloadFileAction
+        $action = new DownloadFileAction;
+        $args = (object) [
+            'filename' => $filename,
+            'binary' => true
         ];
         $result = $action->run($args);
 
