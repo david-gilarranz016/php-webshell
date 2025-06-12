@@ -1,19 +1,11 @@
 <?php
 namespace WebShell;
 
-use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\TestCase;
 
 class UploadFileActionTest extends TestCase
 {
-    // Virtual filesystem's root directory
-    private $root;
-
-    // Initialize virtual filesystem
-    public function setUp(): void
-    {
-        $this->root = vfsStream::setup('root');
-    }
+    use \phpmock\phpunit\PHPMock;
 
     public function testImplementsActionInterface(): void
     {
@@ -24,23 +16,58 @@ class UploadFileActionTest extends TestCase
         $this->assertInstanceOf(Action::class, $action);
     }
 
-    public function testCreatesTheSpecifiedFileWithTheCorrectContents(): void
+    public function testCreatesTheSpecifiedTextFileWithTheCorrectContents(): void
     {
-        // Expected file's name and content
-        $filename = vfsStream::url('root/test.txt');
+        // Initialize variables
+        $fd = 3;
+        $filename = 'root/test.txt';
         $content = 'This is a test file.';
+
+        // Mock fopen, fwrite and fclose, and add expectations
+        $fopen = $this->getFunctionMock(__NAMESPACE__, 'fopen');
+        $fopen->expects($this->once())->with($filename, 'w')->willReturn($fd);
+
+        $fwrite = $this->getFunctionMock(__NAMESPACE__, 'fwrite');
+        $fwrite->expects($this->once())->with($fd, $content);
+
+        $fclose = $this->getFunctionMock(__NAMESPACE__, 'fclose');
+        $fclose->expects($this->once())->with($fd);
 
         // Prepare the arguments and run the action
         $args = (object) [
             'filename' => $filename,
-            'content' => base64_encode($content)
+            'content' => base64_encode($content),
+            'binary' => false
         ];
         $action = new UploadFileAction;
         $action->run($args);
+    }
 
-        // Verify that a file was created with the expected contents
-        $createdContent = file_get_contents($filename);
-        $this->assertEquals($content, $createdContent);
+    public function testCreatesTheSpecifiedBinaryFileWithTheCorrectContents(): void
+    {
+        // Initialize variables
+        $fd = 3;
+        $filename = 'root/test.bin';
+        $content = 'This is a test file.';
+
+        // Mock fopen, fwrite and fclose, and add expectations
+        $fopen = $this->getFunctionMock(__NAMESPACE__, 'fopen');
+        $fopen->expects($this->once())->with($filename, 'wb')->willReturn($fd);
+
+        $fwrite = $this->getFunctionMock(__NAMESPACE__, 'fwrite');
+        $fwrite->expects($this->once())->with($fd, $content);
+
+        $fclose = $this->getFunctionMock(__NAMESPACE__, 'fclose');
+        $fclose->expects($this->once())->with($fd);
+
+        // Prepare the arguments and run the action
+        $args = (object) [
+            'filename' => $filename,
+            'content' => base64_encode($content),
+            'binary' => true
+        ];
+        $action = new UploadFileAction;
+        $action->run($args);
     }
 }
 ?>
