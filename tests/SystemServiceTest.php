@@ -10,11 +10,7 @@ class SystemServiceTest extends TestCase
     // After each test is run, reset the current working directory to its original value
     public function tearDown(): void
     {
-        $instance = SystemService::getInstance();
-        $reflectedInstance = new \ReflectionObject($instance);
-        $currentDir = $reflectedInstance->getProperty('currentDir');
-        $currentDir->setAccessible(true);
-        $currentDir->setValue($instance, '');
+        $_SESSION['cwd'] = '';
     }
 
     public function testIsSingleton(): void
@@ -75,9 +71,8 @@ class SystemServiceTest extends TestCase
 
         // Run a command that modifies the current directory and assert that the new directory is stored
         $instance->execute($cmd);
-        $dir = $instance->getCurrentDir();
 
-        $this->assertEquals($expectedDir, $dir);
+        $this->assertEquals($expectedDir, $_SESSION['cwd']);
     }
 
     public function testDoesNotUpdateCurrentDirIfSpecifiedDirDoesNotExist(): void
@@ -98,8 +93,7 @@ class SystemServiceTest extends TestCase
         $instance->execute('cd /non/existent');
 
         // Expect directory to stay at the last successful change
-        $dir = $instance->getCurrentDir();
-        $this->assertEquals($expectedDir, $dir);
+        $this->assertEquals($expectedDir, $_SESSION['cwd']);
     }
 
     public function testAppendscdCommandToEmulateInteractiveShell(): void
@@ -126,7 +120,7 @@ class SystemServiceTest extends TestCase
         $this->assertEquals($expectedOutput, $output);
     }
 
-    public function testExecutingAcdCommandReturnsTheNewCommandIfSuccessful(): void
+    public function testExecutingAcdCommandReturnsTheNewDirectoryIfSuccessful(): void
     {
         // Get an instance and set the ExecutionMethod
         $instance = SystemService::getInstance();
@@ -142,6 +136,19 @@ class SystemServiceTest extends TestCase
 
         // Expect the output to be the cwd
         $this->assertEquals($dir, $output);
+    }
+
+    public function testGetCurrentDirUsesSessionStorageToLoadCurrentDir(): void
+    {
+        // Set the directory in the session storage 
+        $_SESSION['cwd'] = '/etc/apache2';
+
+        // Get an instance and request the current directory
+        $instance = SystemService::getInstance();
+        $dir = $instance->getCurrentDir();
+
+        // Expect the directory to equal the one in the session
+        $this->assertEquals($_SESSION['cwd'], $dir);
     }
 }
 ?>

