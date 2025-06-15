@@ -10,7 +10,7 @@ class SystemServiceTest extends TestCase
     // After each test is run, reset the current working directory to its original value
     public function tearDown(): void
     {
-        $_SESSION['cwd'] = '';
+        unset($_SESSION['cwd']);
     }
 
     public function testIsSingleton(): void
@@ -96,6 +96,25 @@ class SystemServiceTest extends TestCase
         $this->assertEquals($expectedDir, $_SESSION['cwd']);
     }
 
+    public function testKeepsBaseDirIfPathIsChildFolder(): void
+    {
+        // Get an instance and set the ExecutionMethod
+        $instance = SystemService::getInstance();
+        $executionMethod = $this->createMock(ExecutionMethod::class);
+        $instance->setExecutionMethod($executionMethod);
+
+        // Mock is_dir to return all directories exist
+        $is_dir = $this->getFunctionMock(__NAMESPACE__, "is_dir");
+        $is_dir->expects($this->any())->willReturnOnConsecutiveCalls(true, true);
+
+        // Change to /home and then to a subdirectory
+        $instance->execute('cd /home');
+        $instance->execute('cd web-admin');
+
+        // Expect directory to be the concatenation
+        $this->assertEquals('/home/web-admin', $_SESSION['cwd']);
+    }
+
     public function testAppendscdCommandToEmulateInteractiveShell(): void
     {
         // Get an instance and set the ExecutionMethod
@@ -149,6 +168,22 @@ class SystemServiceTest extends TestCase
 
         // Expect the directory to equal the one in the session
         $this->assertEquals($_SESSION['cwd'], $dir);
+    }
+
+    public function testReturnsPWDResultIfNoCWDIsSet(): void
+    {
+        // Initialize variables
+        $cwd = '/var/www/html';
+
+        // Get an instance and set the ExecutionMethod
+        $instance = SystemService::getInstance();
+        $executionMethod = $this->createMock(ExecutionMethod::class);
+        $executionMethod->expects($this->once())->method('execute')->with('pwd')->willReturn($cwd . "\n");
+        $instance->setExecutionMethod($executionMethod);
+
+        // Request the current directory and expect the output to be $cwd
+        $output = $instance->getCurrentDir();
+        $this->assertEquals($cwd, $output);
     }
 }
 ?>

@@ -12,8 +12,13 @@ class SystemService extends Singleton
 
         // If it is a `cd` command, update the current dir. Else, run the command
         if(str_starts_with($cmd, 'cd ')) {
-            // Check if the path exists and update the path accordingly
+            // Get the target directory
             $targetDir = substr($cmd, 3, strlen($cmd) - 3);
+
+            // Check if the path is relative and if so, append it to the current path
+            if ($targetDir[0] !== '/') {
+                $targetDir = $this->getCurrentDir() . '/' . $targetDir;
+            }
 
             if (is_dir($targetDir)) {
                 $_SESSION['cwd'] = $targetDir;
@@ -41,8 +46,8 @@ class SystemService extends Singleton
         $currentDir = '';
 
         // If no current dir is stored, run a `pwd` command. Else, return the stored dir
-        if($_SESSION['cwd'] == '') {
-            $currentDir = $this->executionMethod->execute('pwd');
+        if(!array_key_exists('cwd', $_SESSION)) {
+            $currentDir = rtrim($this->executionMethod->execute('pwd'));
         } else {
             $currentDir = $_SESSION['cwd'];
         }
