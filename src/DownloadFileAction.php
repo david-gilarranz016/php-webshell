@@ -9,8 +9,9 @@ class DownloadFileAction implements Action
         $mode = ($args->binary) ? 'rb' : 'r';
 
         // Open and read the requested file
-        $fd = fopen($args->filename, $mode);
-        $content = fread($fd, filesize($args->filename));
+        $path = SystemService::getInstance()->getCurrentDir() . '/' . $args->filename;
+        $fd = fopen($path, $mode);
+        $content = fread($fd, filesize($path));
         fclose($fd);
 
         // Return the base64 encoded contents of the file

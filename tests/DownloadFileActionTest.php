@@ -7,6 +7,11 @@ class DownloadFileActionTest extends TestCase
 {
     use \phpmock\phpunit\PHPMock;
 
+    public function tearDown(): void 
+    {
+        unset($_SESSION['cwd']);
+    }
+
     public function testImplementsActionInterface(): void
     {
         // Create an action instance
@@ -19,6 +24,7 @@ class DownloadFileActionTest extends TestCase
     public function testReturnsBase64EncodedTextFile(): void
     {
         // Initialize variables
+        $_SESSION['cwd'] = '/var/www/html';
         $fd = 3;
         $filename = 'test.txt';
         $content = 'This is a test file.';
@@ -26,10 +32,10 @@ class DownloadFileActionTest extends TestCase
 
         // Mock fopen, fread, filesize and fclose
         $fopen = $this->getFunctionMock(__NAMESPACE__, 'fopen');
-        $fopen->expects($this->once())->with($filename, 'r')->willReturn($fd);
+        $fopen->expects($this->once())->with($_SESSION['cwd'] . '/' . $filename, 'r')->willReturn($fd);
 
         $filesize = $this->getFunctionMock(__NAMESPACE__, 'filesize');
-        $filesize->expects($this->once())->with($filename)->willReturn($size);
+        $filesize->expects($this->once())->with($_SESSION['cwd'] . '/' . $filename)->willReturn($size);
 
         $fread = $this->getFunctionMock(__NAMESPACE__, 'fread');
         $fread->expects($this->once())->with($fd, $size)->willReturn($content);
@@ -52,6 +58,7 @@ class DownloadFileActionTest extends TestCase
     public function testReturnsBase64EncodedBinaryFile(): void
     {
         // Initialize variables
+        $_SESSION['cwd'] = '/var/www/html';
         $fd = 3;
         $filename = 'test.txt';
         $content = random_bytes(16);
@@ -59,10 +66,10 @@ class DownloadFileActionTest extends TestCase
 
         // Mock fopen, fread, filesize and fclose
         $fopen = $this->getFunctionMock(__NAMESPACE__, 'fopen');
-        $fopen->expects($this->once())->with($filename, 'rb')->willReturn($fd);
+        $fopen->expects($this->once())->with($_SESSION['cwd'] . '/' . $filename, 'rb')->willReturn($fd);
 
         $filesize = $this->getFunctionMock(__NAMESPACE__, 'filesize');
-        $filesize->expects($this->once())->with($filename)->willReturn($size);
+        $filesize->expects($this->once())->with($_SESSION['cwd'] . '/' . $filename)->willReturn($size);
 
         $fread = $this->getFunctionMock(__NAMESPACE__, 'fread');
         $fread->expects($this->once())->with($fd, $size)->willReturn($content);
