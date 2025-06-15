@@ -96,7 +96,7 @@ class SystemServiceTest extends TestCase
         $this->assertEquals($expectedDir, $_SESSION['cwd']);
     }
 
-    public function testKeepsBaseDirIfPathIsChildFolder(): void
+    public function testCdKeepsBaseDirIfPathIsChildFolder(): void
     {
         // Get an instance and set the ExecutionMethod
         $instance = SystemService::getInstance();
