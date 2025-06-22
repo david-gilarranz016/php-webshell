@@ -8,9 +8,8 @@ class ExecuteCommandAction implements Action
         // Extract the command from the arguments
         $cmd = $args->cmd;
 
-        // Run the command and add it to the command history
+        // Run the command
         $output = SystemService::getInstance()->execute($cmd);
-        HistoryService::getInstance()->addCommand($cmd);
 
         // Return the command output
         return $output;
