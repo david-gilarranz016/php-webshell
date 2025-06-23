@@ -16,7 +16,7 @@ class SystemService extends Singleton
         } else {
             // If the cwd has been updated at any time, append a cd to the command
             $currentDir = (array_key_exists('cwd', $_SESSION)) ? $_SESSION['cwd'] : '';
-            $preparedCommand = ($currentDir == '') ? $cmd : "cd '$currentDir' && $cmd";
+            $preparedCommand = ($currentDir == '') ? $cmd : "cd '" . $currentDir . "' && " . $cmd;
 
             // Run the command
             $output = $this->executionMethod->execute($preparedCommand);
